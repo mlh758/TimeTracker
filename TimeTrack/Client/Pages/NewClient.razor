@@ -1,0 +1,27 @@
+﻿@page "/clients/new"
+@using TimeTrack.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>New Client</PageTitle>
+
+<MudText Typo="Typo.h1">New Client</MudText>
+
+<EditForm Model="model" OnValidSubmit="OnValidSubmit">
+    <MudTextField Label="Client Abbreviation" @bind-Value="model.Abbreviation" />
+    <MudTextField T="DateTime?" Format="yyyy-MM-dd" Label="Date of Birth" InputType="InputType.Date" @bind-Value="model.DateOfBirth" />
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Client</MudButton>
+</EditForm>
+
+@code {
+    NewClientForm model = new NewClientForm();
+
+    async Task OnValidSubmit()
+    {
+        var response = await Http.PostAsync("/api/clients", JsonContent.Create(model));
+        if (response.IsSuccessStatusCode) {
+            NavigationManager.NavigateTo("/clients");
+        }
+    }
+}

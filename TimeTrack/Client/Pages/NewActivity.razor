@@ -1,0 +1,61 @@
+﻿@page "/client_activity/new"
+@using TimeTrack.Shared
+@using TimeTrack.Shared.Models
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Log Activity</PageTitle>
+
+<MudText Typo="Typo.h1">New Activity</MudText>
+
+<EditForm Model="model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <MudTextField T="DateTime?" Format="s" Label="Start Time" InputType="InputType.DateTimeLocal" @bind-Value="model.Start" />
+    <MudTextField T="int?"  Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="model.Duration" />
+    @if (clients is null)
+    {
+        <MudSkeleton Width="100%" Height="1rem"/>
+    }
+    else
+    {
+        <MudAutocomplete T="Client" Label="Choose Client" @bind-Value="model.Client" SearchFunc="@Search" ToStringFunc="@(e=> e.Abbreviation)" />
+    }
+    <ValidationSummary />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Activity</MudButton>
+</EditForm>
+
+@code {
+    ActivityForm model = new ActivityForm();
+
+    private Client[]? clients;
+
+    private async Task<IEnumerable<Client>> Search(string text) {
+        await Task.Delay(0); // forcing this to be async I guess
+        if (clients is null)
+        {
+            return new List<Client>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return clients;
+        }
+
+        return clients.Where(e => e.Abbreviation.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    async Task OnValidSubmit()
+    {
+        var response = await Http.PostAsync("/api/clientactivities", JsonContent.Create(model));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Http.GetFromJsonAsync<Client[]>("/api/Clients");
+    }
+}

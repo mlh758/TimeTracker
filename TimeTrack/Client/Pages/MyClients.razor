@@ -1,0 +1,27 @@
+﻿@page "/clients"
+@using TimeTrack.Shared.Models
+@inject HttpClient Http
+
+<PageTitle>My Clients</PageTitle>
+
+<MudText Typo="Typo.h1">My Clients</MudText>
+
+<MudList>
+    @if (clients is not null)
+    {
+        @foreach (var client in clients)
+        {
+            <MudListItem>@client.Abbreviation</MudListItem>
+        }
+    }
+</MudList>
+
+
+@code {
+    private Client[]? clients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Http.GetFromJsonAsync<Client[]>("/api/Clients");
+    }
+}
