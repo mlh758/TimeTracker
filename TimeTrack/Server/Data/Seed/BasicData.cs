@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using TimeTrack.Shared.Models;
+using TimeTrack.Server.Repositories;
 namespace TimeTrack.Server.Data.Seed
 {
     public class BasicData
@@ -19,8 +20,10 @@ namespace TimeTrack.Server.Data.Seed
             {
                 context.Add(new Assessment(line.Trim()));
             }
-            context.Add(new User("Mike Harris", "osiris2918@gmail.com"));
-            context.SaveChanges();
+            var user = new User("Mike Harris", "osiris2918@gmail.com", "password");
+            var userRepo = new UserRepository(context);
+            var task = userRepo.Create(user);
+            task.Wait();
         }
     }
 }

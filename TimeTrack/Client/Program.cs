@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using TimeTrack.Client;
-using MudBlazor.Services;
 
 namespace TimeTrack.Client
 {

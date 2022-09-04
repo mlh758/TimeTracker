@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TimeTrack.Server.Data;
 using TimeTrack.Shared.Models;
-using TimeTrack.Shared;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -22,14 +21,14 @@ namespace TimeTrack.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ClientActivity>> GetClientActivity(long id)
         {
-            var client = await _context.ClientActivities.FindAsync(id);
+            var activity = await _context.ClientActivities.FindAsync(id);
 
-            if (client == null)
+            if (activity == null)
             {
                 return NotFound();
             }
 
-            return client;
+            return activity;
         }
 
         [HttpGet]

@@ -1,0 +1,39 @@
+﻿@page "/login"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@using System.ComponentModel.DataAnnotations;
+
+<PageTitle>Login</PageTitle>
+
+<MudText Typo="Typo.h1">Login</MudText>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudTextField Variant="Variant.Filled" Label="Email" @bind-Value="model.Email" Required />
+    <MudTextField Variant="Variant.Filled" Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
+    <ValidationSummary />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>
+</EditForm>
+
+@code {
+    private class LoginForm
+    {
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+        [Required]
+        public string? Password { get; set; }
+    }
+
+    LoginForm model = new LoginForm();
+
+    async Task OnValidSubmit()
+    {
+        var response = await Http.PostAsync("/api/login", JsonContent.Create(model));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+}

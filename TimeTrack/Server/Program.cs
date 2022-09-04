@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using TimeTrack.Server.Repositories;
 
 namespace TimeTrack
 {
@@ -15,7 +17,17 @@ namespace TimeTrack
             builder.Services.AddRazorPages();
             var dbConnectionString = builder.Configuration.GetConnectionString("TimeTrack");
             builder.Services.AddDbContext<Server.Data.TimeContext>(options =>
-    options.UseSqlServer(dbConnectionString));
+                options.UseSqlServer(dbConnectionString));
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                    options.SlidingExpiration = true;
+                    options.AccessDeniedPath = "/Forbidden/";
+                });
 
             var app = builder.Build();
 
@@ -40,6 +52,8 @@ namespace TimeTrack
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapRazorPages();
             app.MapControllers();
