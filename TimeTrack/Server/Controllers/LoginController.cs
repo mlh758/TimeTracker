@@ -34,6 +34,7 @@ namespace TimeTrack.Server.Controllers
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Name),
+                new Claim("UserID", user.Id.ToString()),
             };
             var claimsIdentity = new ClaimsIdentity(
             claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -54,6 +55,27 @@ namespace TimeTrack.Server.Controllers
                 Email = user.Email,
                 Id = user.Id,
             });
+        }
+
+        [HttpGet]
+        public ActionResult<VM.User> Login()
+        {
+            var user = HttpContext.User;
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            var viewUser = new VM.User()
+            {
+                Name = user.FindFirstValue(ClaimTypes.Name),
+                Email = user.FindFirstValue(ClaimTypes.Email),
+                Id = Convert.ToInt32(user.FindFirstValue("UserID")),
+            };
+            if (string.IsNullOrEmpty(viewUser.Email))
+            {
+                return Unauthorized();
+            }
+            return Ok(viewUser);
         }
     }
 }
