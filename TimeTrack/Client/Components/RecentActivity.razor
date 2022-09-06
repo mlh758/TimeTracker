@@ -1,0 +1,35 @@
+﻿@using TimeTrack.Shared.Models
+@using TimeTrack.Client.Services
+@inject HttpClient Http
+
+<MudText Typo="Typo.h1">Recent Activity</MudText>
+<div class="container">
+    <div class="recent">Recent Activity List</div>
+    <div class="calendar">
+        <span>S</span>
+        <span>M</span>
+        <span>T</span>
+        <span>W</span>
+        <span>T</span>
+        <span>F</span>
+        <span>S</span>
+        @foreach(var day in currentMonth)
+        {
+            <button>
+                <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Day</time>
+            </button>
+        }
+    </div>
+</div>
+
+
+@code {
+    private ClientActivity[]? activity;
+    private MonthRange currentMonth = new(DateTime.Today);
+
+    protected override async Task OnInitializedAsync()
+    {
+        activity = await Http.GetFromJsonAsync<ClientActivity[]>("/api/ClientActivities");
+        currentMonth.Reset();
+    }
+}

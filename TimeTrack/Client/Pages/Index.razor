@@ -1,16 +1,16 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@using TimeTrack.Client.Components
 
 <PageTitle>Time Tracker</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+Welcome to Time Tracker
 <AuthorizeView>
     <Authorized>
-        You are logged in.
+        <RecentActivity />
     </Authorized>
     <NotAuthorized>
-        <a href="/login">Log in</a>
+        <p><a href="/login">Log in</a></p>
     </NotAuthorized>
 </AuthorizeView>

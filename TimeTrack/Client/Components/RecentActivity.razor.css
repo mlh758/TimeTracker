@@ -1,0 +1,16 @@
+﻿.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex-grow: 1;
+    margin-top: 8px;
+    justify-items: center;
+}
+
+.recent {
+    flex-grow: 1;
+}
+
+.container {
+    display: flex;
+    justify-content: space-around;
+}

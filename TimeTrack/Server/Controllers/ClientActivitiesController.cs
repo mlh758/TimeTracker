@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TimeTrack.Server.Data;
 using TimeTrack.Shared.Models;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace TimeTrack.Server.Controllers
 {
     [Route("/api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ClientActivitiesController : ControllerBase
     {
         public class NewActivity : ClientActivity
@@ -21,7 +25,8 @@ namespace TimeTrack.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ClientActivity>> GetClientActivity(long id)
         {
-            var activity = await _context.ClientActivities.FindAsync(id);
+            var userId = HttpContext.User.FindFirstValue("UserID");
+            var activity = await _context.ClientActivities.Where(a => a.UserId == Convert.ToInt32(userId) && a.Id == id).AsNoTracking().FirstAsync();
 
             if (activity == null)
             {
@@ -32,9 +37,10 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet]
-        public ICollection<ClientActivity> GetClients()
+        public async Task<ICollection<ClientActivity>> GetClients()
         {
-            return _context.ClientActivities.ToArray();
+            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            return await _context.ClientActivities.Where(a => a.UserId == userId).Include(a => a.Client).ToListAsync();
         }
 
         [HttpPost]
@@ -44,12 +50,13 @@ namespace TimeTrack.Server.Controllers
             {
                 return BadRequest();
             }
+            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
             var newActivity = new ClientActivity
             {
                 Start = body.Start,
                 End = body.Start.AddMinutes(body.Duration),
                 ClientId = body.Client.Id,
-                UserId = _context.Users.First().Id, // obviously wrong, we need auth set up to track users though
+                UserId = userId,
             };
             _context.Add(newActivity);
             await _context.SaveChangesAsync();
