@@ -37,10 +37,12 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ICollection<ClientActivity>> GetClients()
+        public async Task<ICollection<ClientActivity>> GetActivities(DateTime within)
         {
             var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
-            return await _context.ClientActivities.Where(a => a.UserId == userId).Include(a => a.Client).ToListAsync();
+            var startAt = new DateTime(within.Year, within.Month, 1);
+            var endAt = startAt.AddDays(DateTime.DaysInMonth(startAt.Year, startAt.Month));
+            return await _context.ClientActivities.Where(a => a.UserId == userId && a.Start >= startAt && a.Start <= endAt).Include(a => a.Client).Include(a => a.Assessments).ToListAsync();
         }
 
         [HttpPost]

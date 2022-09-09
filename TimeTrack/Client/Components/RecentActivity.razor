@@ -4,32 +4,113 @@
 
 <MudText Typo="Typo.h1">Recent Activity</MudText>
 <div class="container">
-    <div class="recent">Recent Activity List</div>
-    <div class="calendar">
-        <span>S</span>
-        <span>M</span>
-        <span>T</span>
-        <span>W</span>
-        <span>T</span>
-        <span>F</span>
-        <span>S</span>
-        @foreach(var day in currentMonth)
-        {
-            <button>
-                <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Day</time>
-            </button>
-        }
+    <div class="recent">
+        <MudStack>
+            <p class="list-title">Activity on @selectedDate.ToString("dddd, dd MMM yyy")</p>
+            @foreach (var activity in todayActivity)
+            {
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Secondary">@activity.Client!.Abbreviation.Substring(0,1)</MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">@activity.Client!.Abbreviation</MudText>
+                            <MudText Typo="Typo.body2">@((@activity.End - @activity.Start).TotalHours)</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                            <MudList>
+                                @foreach(var assessment in activity.Assessments!)
+                                {
+                                    <MudListItem Text="@assessment.Name" />
+                                }
+                            </MudList>
+                        </MudCardContent>
+                </MudCard>
+            }
+        </MudStack>
+    </div>
+    <div class="recent calendar-container">
+        <section>
+            <div class="calendar">
+                @foreach (var day in days)
+                {
+                    <span>@day</span>
+                }
+            </div>
+            <div class="calendar calendar-bg border-solit border-2 mud-border-primary rounded mud-elevation-4">
+                @foreach (var day in new MonthRange(currentMonth))
+                {
+                    <button class=@ButtonClass(day) @onclick="@(() => SetSelectedDay(day))" disabled=@Disabled(day)>
+                        <time datetime="@day.Date.ToString("yyyy-MM-dd")">@day.Day</time>
+                    </button>
+                }
+            </div>
+        </section>
+        <form @onsubmit="HandleMonthChange">
+            <div class="pick-month">
+                <MudTextField T="DateTime" Format="yyyy-MM-dd" Label="Change month and year" InputType="InputType.Date" @bind-Value="nextDate" />
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Go</MudButton>
+            </div>
+        </form>
     </div>
 </div>
 
 
 @code {
-    private ClientActivity[]? activity;
-    private MonthRange currentMonth = new(DateTime.Today);
+    private ClientActivity[] activity = { };
+    private ClientActivity[] todayActivity = { };
+    private DateTime currentMonth = DateTime.Today;
+    private DateTime selectedDate = DateTime.Today;
+    private DateTime nextDate = DateTime.Today;
+    private List<string> days = new() { "S", "M", "T", "W", "T", "F", "S" };
 
     protected override async Task OnInitializedAsync()
     {
-        activity = await Http.GetFromJsonAsync<ClientActivity[]>("/api/ClientActivities");
-        currentMonth.Reset();
+        await GetActivities();
+    }
+
+    private async Task GetActivities()
+    {
+        var newActivity = await Http.GetFromJsonAsync<ClientActivity[]>($"/api/ClientActivities?within={selectedDate.ToString("O")}");
+        if (newActivity is not null)
+        {
+            activity = newActivity;
+            todayActivity = FilterActivity(selectedDate);
+        }
+    }
+
+    private string ButtonClass(DateTime date) {
+        var classes = HasActivity(date) ? "teal lighten-4" : "white-bg";
+        if (date.Date == selectedDate.Date) {
+            classes = classes + " selected-day";
+        }
+        return classes;
+    }
+
+    private bool HasActivity(DateTime date) {
+        return activity.Any(a => a.Start.Date == date.Date);
+    }
+
+    private ClientActivity[] FilterActivity(DateTime date) {
+        return activity.Where(a => a.Start.Date == date.Date).ToArray();
+    }
+
+    private void SetSelectedDay(DateTime date) {
+        selectedDate = date;
+        todayActivity = FilterActivity(date);
+    }
+
+    private bool Disabled(DateTime date)
+    {
+        return date.Month != currentMonth.Month;
+    }
+
+    private async Task HandleMonthChange()
+    {
+        selectedDate = nextDate;
+        currentMonth = nextDate;
+        await GetActivities();
     }
 }
