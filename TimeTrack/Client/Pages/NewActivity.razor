@@ -13,15 +13,39 @@
 
     <MudTextField T="DateTime?" Format="s" Label="Start Time" InputType="InputType.DateTimeLocal" @bind-Value="model.Start" />
     <MudTextField T="int?"  Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="model.Duration" />
-    @if (clients is null)
+    @if (loading)
     {
-        <MudSkeleton Width="100%" Height="1rem"/>
+        <MudSkeleton Width="100%" Height="2rem"/>
+        <MudSkeleton Width="100%" Height="2rem" />
     }
     else
     {
-        <MudAutocomplete T="Client" Label="Choose Client" @bind-Value="model.Client" SearchFunc="@Search" ToStringFunc="@(e=> e.Abbreviation)" />
+        <MudAutocomplete T="Client" Label="Choose Client" @bind-Value="model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Abbreviation)" Clearable ResetValueOnEmptyText />
+        <MudAutocomplete T="Assessment"
+            @ref="assessmentSearch"
+            Label="Choose Assessments"
+            SearchFunc="@SearchAssessments"
+            ToStringFunc="@(e=> e.Name)"
+            ValueChanged="OnAssessmentChosen"
+            Clearable
+            ResetValueOnEmptyText
+            AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+            HelperText="Search for assessments"
+        />
+
+        @foreach (var a in model.Assessments)
+        {
+            <MudChip Color="Color.Secondary" Variant="Variant.Outlined" OnClose="@(() => model.Assessments.Remove(a))">
+                <span class="chip-text">
+                    @a.Name
+                </span>
+            </MudChip>
+        }
+        
     }
-    <ValidationSummary />
+    <div>
+        <ValidationSummary />
+    </div>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Activity</MudButton>
 </EditForm>
 
@@ -29,8 +53,24 @@
     ActivityForm model = new ActivityForm();
 
     private Client[]? clients;
+    private Assessment[]? assessments;
+    private bool loading = true;
+    private MudAutocomplete<Assessment>? assessmentSearch;
 
-    private async Task<IEnumerable<Client>> Search(string text) {
+    private async void OnAssessmentChosen(Assessment chosen)
+    {
+        if (chosen is not null)
+        {
+            model.Assessments.Add(chosen);
+        }
+        if (assessmentSearch is not null) {
+            await assessmentSearch.Clear();
+            await assessmentSearch.BlurAsync();
+        }
+    }
+
+    private async Task<IEnumerable<Client>> SearchClients(string text)
+    {
         await Task.Delay(0); // forcing this to be async I guess
         if (clients is null)
         {
@@ -45,17 +85,33 @@
         return clients.Where(e => e.Abbreviation.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
+    private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
+    {
+        await Task.Delay(0);
+        if (assessments is null)
+        {
+            return new List<Assessment>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return assessments;
+        }
+
+        return assessments.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
     async Task OnValidSubmit()
     {
         var response = await Http.PostAsync("/api/clientactivities", JsonContent.Create(model));
-        if (response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/");
-        }
+        NavigationManager.NavigateTo("/");
     }
 
     protected override async Task OnInitializedAsync()
     {
-        clients = await Http.GetFromJsonAsync<Client[]>("/api/Clients");
+        var clientsTask = Http.GetFromJsonAsync<Client[]>("/api/Clients");
+        assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
+        clients = await clientsTask;
+        loading = false;
     }
 }

@@ -1,0 +1,13 @@
+﻿.links {
+    display: flex;
+    gap: 24px;
+}
+
+.links a {
+    color: var(--mud-palette-primary-text);
+    text-decoration: underline;
+}
+
+.links a:visited {
+    color: var(--mud-palette-primary-text);
+}

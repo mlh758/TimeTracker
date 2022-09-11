@@ -1,5 +1,5 @@
-﻿@using TimeTrack.Shared.Models
-@using TimeTrack.Client.Services
+﻿@using TimeTrack.Client.Services
+@using TimeTrack.Shared.ViewModels
 @inject HttpClient Http
 
 <MudText Typo="Typo.h1">Recent Activity</MudText>
@@ -12,10 +12,10 @@
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">@activity.Client!.Abbreviation.Substring(0,1)</MudAvatar>
+                            <MudAvatar Color="Color.Secondary">@activity.Client.Abbreviation.Substring(0,1)</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.body1">@activity.Client!.Abbreviation</MudText>
+                            <MudText Typo="Typo.body1">@activity.Client.Abbreviation</MudText>
                             <MudText Typo="Typo.body2">@((@activity.End - @activity.Start).TotalHours)</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>

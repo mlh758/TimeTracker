@@ -4,6 +4,7 @@ using TimeTrack.Server.Data;
 using TimeTrack.Shared.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using VM = TimeTrack.Shared.ViewModels;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -37,28 +38,41 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ICollection<ClientActivity>> GetActivities(DateTime within)
+        public async Task<ICollection<VM.ClientActivity>> GetActivities(DateTime within)
         {
             var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
             var startAt = new DateTime(within.Year, within.Month, 1);
             var endAt = startAt.AddDays(DateTime.DaysInMonth(startAt.Year, startAt.Month));
-            return await _context.ClientActivities.Where(a => a.UserId == userId && a.Start >= startAt && a.Start <= endAt).Include(a => a.Client).Include(a => a.Assessments).ToListAsync();
+            return await _context.ClientActivities
+                .Where(a => a.UserId == userId && a.Start >= startAt && a.Start <= endAt)
+                .Include(a => a.Assessments)
+                .Include(a => a.Client)
+                .Select(a => new VM.ClientActivity()
+                {
+                    Start = a.Start,
+                    End = a.End,
+                    Client = new VM.ActivityClient() { Abbreviation = a.Client!.Abbreviation },
+                    Assessments = a.Assessments!,
+
+                }).ToListAsync();
         }
 
         [HttpPost]
         public async Task<ActionResult<ClientActivity>> CreateClientActivity(NewActivity body)
         {
-            if (body.Client is null)
+            if (body.Client is null || body.Assessments is null)
             {
                 return BadRequest();
             }
             var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var assessments = await _context.Assessments.Where(a => body.Assessments.Select(el => el.Id).Contains(a.Id)).ToListAsync();
             var newActivity = new ClientActivity
             {
                 Start = body.Start,
                 End = body.Start.AddMinutes(body.Duration),
                 ClientId = body.Client.Id,
                 UserId = userId,
+                Assessments = assessments,
             };
             _context.Add(newActivity);
             await _context.SaveChangesAsync();

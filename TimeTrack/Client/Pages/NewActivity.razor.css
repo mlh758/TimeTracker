@@ -1,0 +1,5 @@
+﻿.chip-text {
+    max-width: 220px;
+    text-overflow:ellipsis;
+    overflow: hidden;
+}

@@ -13,11 +13,11 @@
 }
 
 .calendar > * {
-    padding: 8px;
+    padding: var(--calendar-padding);
 }
 
 .list-title {
-    padding: 8px;
+    padding: var(--calendar-padding);
 }
 
 .calendar > button:hover {
@@ -49,6 +49,7 @@
     display: flex;
     margin-top: 8px;
     gap: 16px;
+    --calendar-padding: 8px;
 }
 
 @media (max-width: 720px) {

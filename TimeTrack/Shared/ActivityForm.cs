@@ -16,6 +16,10 @@ namespace TimeTrack.Shared
         private Client? _client;
 
         [Required]
+        public HashSet<Assessment> Assessments { get; set; }
+
+
+        [Required]
         public Client? Client
         {
             get
@@ -27,6 +31,11 @@ namespace TimeTrack.Shared
                 _client = value;
                 ClientId = value?.Id;
             }
+        }
+
+        public ActivityForm()
+        {
+            Assessments = new HashSet<Assessment>();
         }
     }
 }

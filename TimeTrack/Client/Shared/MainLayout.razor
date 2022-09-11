@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -7,12 +8,30 @@
 
 <MudLayout>
     <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        Time Tracker
+        <AuthorizeView>
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        </AuthorizeView>
+        <span>Time Tracker</span>
+        <MudSpacer />
+        <p class="links">
+            <AuthorizeView>
+                <Authorized>
+                    <a href="/logout">Log out</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/login">Log in</a>
+                    <a href="/register">Register</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </p>
+        
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen">
-        <NavLinks/>
-    </MudDrawer>
+    <AuthorizeView>
+        <MudDrawer @bind-Open="@_drawerOpen">
+            <NavLinks />
+        </MudDrawer>
+    </AuthorizeView>
+    
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Medium">
             @Body
