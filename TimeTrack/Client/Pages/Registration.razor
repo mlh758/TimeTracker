@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/register"
 @using System.ComponentModel.DataAnnotations;
 @using TimeTrack.Client.Services;
 @using TimeTrack.Shared;
@@ -7,26 +7,28 @@
 @inject AuthProvider Auth
 
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Register</PageTitle>
 
-<MudText Typo="Typo.h1">Login</MudText>
+<MudText Typo="Typo.h1">Register</MudText>
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
-    <MudTextField Label="Email" @bind-Value="model.Email" Required />
+    <MudTextField Label="Name" @bind-Value="model.Name" Required />
+    <MudTextField Label="Email" InputType="InputType.Email" @bind-Value="model.Email" Required />
     <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
+    <MudTextField Label="Confirm Password" InputType="InputType.Password" @bind-Value="model.ConfirmPassword" Required />
     <ValidationSummary />
     <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>
 </EditForm>
 
 @code {
 
-    LoginForm model = new LoginForm();
+    RegistrationForm model = new RegistrationForm();
 
     async Task OnValidSubmit()
     {
-        await Auth.Login(model);
-        NavigationManager.NavigateTo("/");
+        await Auth.Register(model);
+        NavigationManager.NavigateTo("/login");
     }
 
 }

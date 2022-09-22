@@ -8,7 +8,7 @@ namespace TimeTrack.Shared.Models
         
         [Comment("Assessment names from buros.org mental measurements yearbook series")]
         public string Name {  get; set; }
-        public List<ClientActivity>? ClientActivities { get; set; }
+        public List<Activity>? ClientActivities { get; set; }
 
         public Assessment(string name)
         {

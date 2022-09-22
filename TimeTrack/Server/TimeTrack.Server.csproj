@@ -27,5 +27,9 @@
     <ProjectReference Include="..\Shared\TimeTrack.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
 
 </Project>

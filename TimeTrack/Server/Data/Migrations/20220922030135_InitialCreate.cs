@@ -23,27 +23,15 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Abbreviation = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clients", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Salt = table.Column<byte[]>(type: "Binary(8)", maxLength: 8, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -51,27 +39,20 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClientActivities",
+                name: "Clients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Start = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    ClientId = table.Column<int>(type: "int", nullable: false)
+                    Abbreviation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClientActivities", x => x.Id);
+                    table.PrimaryKey("PK_Clients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientActivities_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ClientActivities_Users_UserId",
+                        name: "FK_Clients_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -79,7 +60,28 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AssessmentClientActivity",
+                name: "Activities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Start = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClientId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Activities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Activities_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ActivityAssessment",
                 columns: table => new
                 {
                     AssessmentsId = table.Column<int>(type: "int", nullable: false),
@@ -87,47 +89,47 @@ namespace TimeTrack.Server.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AssessmentClientActivity", x => new { x.AssessmentsId, x.ClientActivitiesId });
+                    table.PrimaryKey("PK_ActivityAssessment", x => new { x.AssessmentsId, x.ClientActivitiesId });
                     table.ForeignKey(
-                        name: "FK_AssessmentClientActivity_Assessments_AssessmentsId",
-                        column: x => x.AssessmentsId,
-                        principalTable: "Assessments",
+                        name: "FK_ActivityAssessment_Activities_ClientActivitiesId",
+                        column: x => x.ClientActivitiesId,
+                        principalTable: "Activities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AssessmentClientActivity_ClientActivities_ClientActivitiesId",
-                        column: x => x.ClientActivitiesId,
-                        principalTable: "ClientActivities",
+                        name: "FK_ActivityAssessment_Assessments_AssessmentsId",
+                        column: x => x.AssessmentsId,
+                        principalTable: "Assessments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssessmentClientActivity_ClientActivitiesId",
-                table: "AssessmentClientActivity",
-                column: "ClientActivitiesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ClientActivities_ClientId",
-                table: "ClientActivities",
+                name: "IX_Activities_ClientId",
+                table: "Activities",
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClientActivities_UserId",
-                table: "ClientActivities",
+                name: "IX_ActivityAssessment_ClientActivitiesId",
+                table: "ActivityAssessment",
+                column: "ClientActivitiesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_UserId",
+                table: "Clients",
                 column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AssessmentClientActivity");
+                name: "ActivityAssessment");
+
+            migrationBuilder.DropTable(
+                name: "Activities");
 
             migrationBuilder.DropTable(
                 name: "Assessments");
-
-            migrationBuilder.DropTable(
-                name: "ClientActivities");
 
             migrationBuilder.DropTable(
                 name: "Clients");

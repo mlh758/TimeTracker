@@ -19,7 +19,8 @@ namespace TimeTrack
             builder.Services.AddDbContext<Server.Data.TimeContext>(options =>
                 options.UseSqlServer(dbConnectionString));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-
+            builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+            builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>

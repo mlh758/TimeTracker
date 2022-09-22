@@ -17,8 +17,9 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VM.User>> Create(User user)
+        public async Task<ActionResult<VM.User>> Create(Shared.RegistrationForm form)
         {
+            var user = new User(form.Name, form.Email, form.Password);
             var savedUser = await _userRepository.Create(user);
             return Ok(new VM.User()
             {

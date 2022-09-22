@@ -12,7 +12,7 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    [Migration("20220823200404_InitialCreate")]
+    [Migration("20220922030135_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,7 +24,7 @@ namespace TimeTrack.Server.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("AssessmentClientActivity", b =>
+            modelBuilder.Entity("ActivityAssessment", b =>
                 {
                     b.Property<int>("AssessmentsId")
                         .HasColumnType("int");
@@ -36,10 +36,34 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("ClientActivitiesId");
 
-                    b.ToTable("AssessmentClientActivity");
+                    b.ToTable("ActivityAssessment");
                 });
 
-            modelBuilder.Entity("TimeTrack.Server.Models.Assessment", b =>
+            modelBuilder.Entity("TimeTrack.Shared.Models.Activity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("Activities");
+                });
+
+            modelBuilder.Entity("TimeTrack.Shared.Models.Assessment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +81,7 @@ namespace TimeTrack.Server.Data.Migrations
                     b.ToTable("Assessments");
                 });
 
-            modelBuilder.Entity("TimeTrack.Server.Models.Client", b =>
+            modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,41 +96,17 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Clients");
-                });
-
-            modelBuilder.Entity("TimeTrack.Server.Models.ClientActivity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("ClientActivities");
+                    b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("TimeTrack.Server.Models.User", b =>
+            modelBuilder.Entity("TimeTrack.Shared.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -122,43 +122,59 @@ namespace TimeTrack.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Salt")
+                        .HasMaxLength(8)
+                        .HasColumnType("Binary(8)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("AssessmentClientActivity", b =>
+            modelBuilder.Entity("ActivityAssessment", b =>
                 {
-                    b.HasOne("TimeTrack.Server.Models.Assessment", null)
+                    b.HasOne("TimeTrack.Shared.Models.Assessment", null)
                         .WithMany()
                         .HasForeignKey("AssessmentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TimeTrack.Server.Models.ClientActivity", null)
+                    b.HasOne("TimeTrack.Shared.Models.Activity", null)
                         .WithMany()
                         .HasForeignKey("ClientActivitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TimeTrack.Server.Models.ClientActivity", b =>
+            modelBuilder.Entity("TimeTrack.Shared.Models.Activity", b =>
                 {
-                    b.HasOne("TimeTrack.Server.Models.Client", "Client")
-                        .WithMany()
+                    b.HasOne("TimeTrack.Shared.Models.Client", "Client")
+                        .WithMany("Activities")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TimeTrack.Server.Models.User", "User")
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>
+                {
+                    b.HasOne("TimeTrack.Shared.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Client");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>
+                {
+                    b.Navigation("Activities");
                 });
 #pragma warning restore 612, 618
         }

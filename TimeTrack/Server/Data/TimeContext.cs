@@ -26,7 +26,7 @@ namespace TimeTrack.Server.Data
 
         public DbSet<Assessment> Assessments { get; set; }
         public DbSet<Shared.Models.Client> Clients { get; set; }
-        public DbSet<ClientActivity> ClientActivities { get; set; }
+        public DbSet<Activity> Activities { get; set; }
         public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

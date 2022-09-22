@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTrack.Client", "TimeTra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTrack.Shared", "TimeTrack\Shared\TimeTrack.Shared.csproj", "{94BBD869-FC78-4B79-AA88-E102A5462B99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTrack.ClientTests", "TimeTrack\TimeTrack.ClientTests\TimeTrack.ClientTests.csproj", "{3256E439-8AA4-4EE5-9842-020293D9CD42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTrack.ClientTests", "TimeTrack\TimeTrack.ClientTests\TimeTrack.ClientTests.csproj", "{3256E439-8AA4-4EE5-9842-020293D9CD42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

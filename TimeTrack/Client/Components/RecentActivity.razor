@@ -7,6 +7,10 @@
     <div class="recent">
         <MudStack>
             <p class="list-title">Activity on @selectedDate.ToString("dddd, dd MMM yyy")</p>
+            @if (showError)
+            {
+                <MudAlert Severity="Severity.Error">Unable to load activity for selected day.</MudAlert>
+            }
             @foreach (var activity in todayActivity)
             {
                 <MudCard>
@@ -64,6 +68,7 @@
     private DateTime currentMonth = DateTime.Today;
     private DateTime selectedDate = DateTime.Today;
     private DateTime nextDate = DateTime.Today;
+    private bool showError = false;
     private List<string> days = new() { "S", "M", "T", "W", "T", "F", "S" };
 
     protected override async Task OnInitializedAsync()
@@ -73,12 +78,17 @@
 
     private async Task GetActivities()
     {
-        var newActivity = await Http.GetFromJsonAsync<ClientActivity[]>($"/api/ClientActivities?within={selectedDate.ToString("O")}");
-        if (newActivity is not null)
-        {
-            activity = newActivity;
-            todayActivity = FilterActivity(selectedDate);
+        try {
+            var newActivity = await Http.GetFromJsonAsync<ClientActivity[]>($"/api/ClientActivities?within={selectedDate.ToString("O")}");
+            if (newActivity is not null)
+            {
+                activity = newActivity;
+                todayActivity = FilterActivity(selectedDate);
+            }
+        } catch (HttpRequestException) {
+            showError = true;
         }
+        
     }
 
     private string ButtonClass(DateTime date) {

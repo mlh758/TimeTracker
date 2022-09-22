@@ -37,7 +37,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> Login(string email, string password)
     {
-        var user = await _timeContext.Users.Where(u => u.Email == email).FirstAsync();
+        var user = await _timeContext.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
         if (user is null)
         {
             return null;

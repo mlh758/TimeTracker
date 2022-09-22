@@ -11,6 +11,11 @@ namespace TimeTrack.Shared.Models
         [Required]
         public DateTime DateOfBirth { get; set; }
 
+        public int UserId { get; set; }
+        public User? User { get; set; }
+
+        public List<Activity>? Activities { get; set; }
+
         public Client(string abbreviation)
         {
             Abbreviation = abbreviation;
