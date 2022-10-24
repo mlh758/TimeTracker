@@ -23,6 +23,20 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -45,12 +59,46 @@ namespace TimeTrack.Server.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Abbreviation = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AgeId = table.Column<int>(type: "int", nullable: false),
+                    SettingId = table.Column<int>(type: "int", nullable: false),
+                    SexualOrientationId = table.Column<int>(type: "int", nullable: false),
+                    RaceId = table.Column<int>(type: "int", nullable: false),
+                    GenderId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clients", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Clients_Categories_AgeId",
+                        column: x => x.AgeId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Categories_GenderId",
+                        column: x => x.GenderId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Categories_RaceId",
+                        column: x => x.RaceId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Categories_SettingId",
+                        column: x => x.SettingId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Categories_SexualOrientationId",
+                        column: x => x.SexualOrientationId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Clients_Users_UserId",
                         column: x => x.UserId,
@@ -75,6 +123,30 @@ namespace TimeTrack.Server.Data.Migrations
                     table.ForeignKey(
                         name: "FK_Activities_Clients_ClientId",
                         column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CategoryClient",
+                columns: table => new
+                {
+                    DisabilitiesId = table.Column<int>(type: "int", nullable: false),
+                    DisabledClientsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryClient", x => new { x.DisabilitiesId, x.DisabledClientsId });
+                    table.ForeignKey(
+                        name: "FK_CategoryClient_Categories_DisabilitiesId",
+                        column: x => x.DisabilitiesId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryClient_Clients_DisabledClientsId",
+                        column: x => x.DisabledClientsId,
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -115,6 +187,36 @@ namespace TimeTrack.Server.Data.Migrations
                 column: "ClientActivitiesId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoryClient_DisabledClientsId",
+                table: "CategoryClient",
+                column: "DisabledClientsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_AgeId",
+                table: "Clients",
+                column: "AgeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_GenderId",
+                table: "Clients",
+                column: "GenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_RaceId",
+                table: "Clients",
+                column: "RaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_SettingId",
+                table: "Clients",
+                column: "SettingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_SexualOrientationId",
+                table: "Clients",
+                column: "SexualOrientationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Clients_UserId",
                 table: "Clients",
                 column: "UserId");
@@ -126,6 +228,9 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "ActivityAssessment");
 
             migrationBuilder.DropTable(
+                name: "CategoryClient");
+
+            migrationBuilder.DropTable(
                 name: "Activities");
 
             migrationBuilder.DropTable(
@@ -133,6 +238,9 @@ namespace TimeTrack.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Users");

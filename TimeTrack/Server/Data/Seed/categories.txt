@@ -1,0 +1,44 @@
+﻿Age,Unknown
+Age,Infants / Toddlers (0-2)
+Age,Pre-School Age (3-5)
+Age,School-Age (6-12)
+Age,Adolescents (13-17)
+Age,Adults (18-64)
+Age,Older Adults (65+)
+Race,African-American / Black / African Origin
+Race,Asian-American / Asian Origin / Pacific Islander
+Race,Latino-a / Hispanic
+Race,American Indian / Alaska Native / Aboriginal Canadian
+Race,European Origin / White
+Race,Bi-racial / Multi-racial
+Race,Other
+SexualOrientation,Heterosexual
+SexualOrientation,Gay
+SexualOrientation,Lebian
+SexualOrientation,Bisexual
+SexualOrientation,Other
+Disabilities,Physical/Orthopedic
+Disabilities,Blind/Visually Impaired
+Disabilities,Deaf/Hard of hearing
+Disabilities,Learning/Cognitive Disability
+Disabilities,Developmental Disability
+Disabilities,Serious Mental Illness
+Disabilities,Other
+TreatmentSetting,Child Guidance Clinic
+TreatmentSetting,Community Mental Health
+TreatmentSetting,Department/School Clinic
+TreatmentSetting,Forensic/Justice (Jail)
+TreatmentSetting,Inpatient Psychiatric Hospital
+TreatmentSetting,Medical Clinic/Hospital
+TreatmentSetting,Outpatient Psychiatric Clinic/Hospital
+TreatmentSetting,Partial Hospitalization /Intensive Outpatient Programs
+TreatmentSetting,Private Practice
+TreatmentSetting,Residential/Group Home
+TreatmentSetting,Schools
+TreatmentSetting,University Counsel/Student Mental Health
+TreatmentSetting,VA Medical Center
+TreatmentSetting,Other
+Gender,Male
+Gender,Female
+Gender,Transgender
+Gender,Other

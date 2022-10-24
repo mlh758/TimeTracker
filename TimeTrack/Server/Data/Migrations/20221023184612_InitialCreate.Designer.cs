@@ -12,7 +12,7 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    [Migration("20220922030135_InitialCreate")]
+    [Migration("20221023184612_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,21 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasIndex("ClientActivitiesId");
 
                     b.ToTable("ActivityAssessment");
+                });
+
+            modelBuilder.Entity("CategoryClient", b =>
+                {
+                    b.Property<int>("DisabilitiesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisabledClientsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DisabilitiesId", "DisabledClientsId");
+
+                    b.HasIndex("DisabledClientsId");
+
+                    b.ToTable("CategoryClient");
                 });
 
             modelBuilder.Entity("TimeTrack.Shared.Models.Activity", b =>
@@ -81,6 +96,26 @@ namespace TimeTrack.Server.Data.Migrations
                     b.ToTable("Assessments");
                 });
 
+            modelBuilder.Entity("TimeTrack.Shared.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -93,13 +128,35 @@ namespace TimeTrack.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("AgeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GenderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SettingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SexualOrientationId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AgeId");
+
+                    b.HasIndex("GenderId");
+
+                    b.HasIndex("RaceId");
+
+                    b.HasIndex("SettingId");
+
+                    b.HasIndex("SexualOrientationId");
 
                     b.HasIndex("UserId");
 
@@ -150,6 +207,21 @@ namespace TimeTrack.Server.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CategoryClient", b =>
+                {
+                    b.HasOne("TimeTrack.Shared.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("DisabilitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Shared.Models.Client", null)
+                        .WithMany()
+                        .HasForeignKey("DisabledClientsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("TimeTrack.Shared.Models.Activity", b =>
                 {
                     b.HasOne("TimeTrack.Shared.Models.Client", "Client")
@@ -163,13 +235,66 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>
                 {
+                    b.HasOne("TimeTrack.Shared.Models.Category", "Age")
+                        .WithMany("AgedClients")
+                        .HasForeignKey("AgeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Shared.Models.Category", "Gender")
+                        .WithMany("GenderedClients")
+                        .HasForeignKey("GenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Shared.Models.Category", "Race")
+                        .WithMany("RaceClients")
+                        .HasForeignKey("RaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Shared.Models.Category", "Setting")
+                        .WithMany("SettingClients")
+                        .HasForeignKey("SettingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Shared.Models.Category", "SexualOrientation")
+                        .WithMany("SexualOrientationClients")
+                        .HasForeignKey("SexualOrientationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("TimeTrack.Shared.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Age");
+
+                    b.Navigation("Gender");
+
+                    b.Navigation("Race");
+
+                    b.Navigation("Setting");
+
+                    b.Navigation("SexualOrientation");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TimeTrack.Shared.Models.Category", b =>
+                {
+                    b.Navigation("AgedClients");
+
+                    b.Navigation("GenderedClients");
+
+                    b.Navigation("RaceClients");
+
+                    b.Navigation("SettingClients");
+
+                    b.Navigation("SexualOrientationClients");
                 });
 
             modelBuilder.Entity("TimeTrack.Shared.Models.Client", b =>

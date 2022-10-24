@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TimeTrack.Server.Data;
+using TimeTrack.Shared;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -38,11 +39,28 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Shared.Models.Client>> CreateClient(Shared.Models.Client newClient)
+        public async Task<ActionResult<Shared.Models.Client>> CreateClient(NewClientForm clientData)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             // ensures the client is created against the current session
             var userId = HttpContext.User.FindFirstValue("UserID");
-            newClient.UserId = Convert.ToInt32(userId);
+            var newClient = new Shared.Models.Client(clientData.Abbreviation!)
+            {
+                UserId = Convert.ToInt32(userId),
+                AgeId = clientData.Age.Id,
+                SettingId = clientData.Setting!.Id,
+                SexualOrientationId = clientData.SexualOrientation!.Id,
+                GenderId = clientData.Gender!.Id,
+                RaceId = clientData.Race!.Id
+            };
+            if (clientData.Disabilities is not null)
+            {
+                var disabilityIds = clientData.Disabilities.Select(d => d.Id).ToList();
+                newClient.Disabilities = await _context.Categories.Where(c => c.Type == Shared.Models.CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
+            }
             _context.Add(newClient);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, newClient);

@@ -28,6 +28,7 @@ namespace TimeTrack.Server.Data
         public DbSet<Shared.Models.Client> Clients { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,9 +40,12 @@ namespace TimeTrack.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            OnModelCreatingPartial(modelBuilder);
+            modelBuilder.Entity<Shared.Models.Client>().HasMany(c => c.Disabilities).WithMany(c => c.DisabledClients);
+            modelBuilder.Entity<Category>().HasMany(c => c.RaceClients).WithOne(c => c.Race).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Category>().HasMany(c => c.GenderedClients).WithOne(c => c.Gender).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Category>().HasMany(c => c.SettingClients).WithOne(c => c.Setting).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Category>().HasMany(c => c.SexualOrientationClients).WithOne(c => c.SexualOrientation).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Category>().HasMany(c => c.AgedClients).WithOne(c => c.Age).OnDelete(DeleteBehavior.Restrict);
         }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
