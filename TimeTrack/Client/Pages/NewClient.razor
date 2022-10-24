@@ -16,12 +16,42 @@
 
     @if (categories is not null)
     {
-        <CategorySelect Label="Treatment Setting" Categories="ofType(CategoryType.TreatmentSetting)" @bind-Value="@model.Setting" />
-        <CategorySelect Label="Age" Categories="ofType(CategoryType.Age)" @bind-Value="@model.Age" />
-        <CategorySelect Label="Race" Categories="ofType(CategoryType.Race)" @bind-Value="@model.Race" />
-        <CategorySelect Label="Gender" Categories="ofType(CategoryType.Gender)" @bind-Value="@model.Gender" />
-        <CategorySelect Label="Sexual Orientation" Categories="ofType(CategoryType.SexualOrientation)" @bind-Value="@model.SexualOrientation" />
-        <CategorySelect Label="Disabilities" Categories="ofType(CategoryType.Disability)" @bind-SelectedValues="@model.Disabilities" Multiple />
+        <MudSelect Label="Treatment Setting" @bind-Value=@model.Setting T="VM.Category">
+            @foreach (var item in ofType(CategoryType.TreatmentSetting))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
+        <MudSelect Label="Age" @bind-Value=@model.Age T="VM.Category">
+            @foreach (var item in ofType(CategoryType.Age))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
+        <MudSelect Label="Race" @bind-Value=@model.Race T="VM.Category">
+            @foreach (var item in ofType(CategoryType.Race))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
+        <MudSelect Label="Gender" @bind-Value=@model.Gender T="VM.Category">
+            @foreach (var item in ofType(CategoryType.Gender))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
+        <MudSelect Label="Sexual Orientation" @bind-Value=@model.SexualOrientation T="VM.Category">
+            @foreach (var item in ofType(CategoryType.SexualOrientation))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
+        <MudSelect Label="Disabilities" @bind-SelectedValues=@model.Disabilities T="VM.Category" MultiSelection>
+            @foreach (var item in ofType(CategoryType.Disability))
+            {
+                <MudSelectItem Value="@item" />
+            }
+        </MudSelect>
     } else {
         <MudSkeleton Width="100%" Height="600px" />
     }
