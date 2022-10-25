@@ -24,7 +24,7 @@ namespace TimeTrack.Server.Controllers
         public async Task<ActionResult<VM.Client>> GetClient(int id)
         {
             var userId = HttpContext.User.FindFirstValue("UserID");
-            var client = await forUser(Convert.ToInt32(userId), id);
+            var client = await ForUser(Convert.ToInt32(userId), id);
 
             if (client == null) 
             {
@@ -34,7 +34,7 @@ namespace TimeTrack.Server.Controllers
             return client;
         }
 
-        private async Task<VM.Client?> forUser(int userId, int clientId)
+        private async Task<VM.Client?> ForUser(int userId, int clientId)
         {
             var client = await _context
                 .Clients
