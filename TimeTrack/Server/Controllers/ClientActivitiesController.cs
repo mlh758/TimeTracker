@@ -52,7 +52,7 @@ namespace TimeTrack.Server.Controllers
             {
                 Start = a.Start,
                 End = a.End,
-                Client = new VM.Client() { Abbreviation = a.Client!.Abbreviation },
+                Client = new VM.SummaryClient() { Abbreviation = a.Client!.Abbreviation, Id = a.ClientId },
                 Assessments = a.Assessments!.Select(a => new VM.Assessment { Name = a.Name }).ToList(),
 
             }).ToList();

@@ -1,0 +1,39 @@
+﻿@page "/clients/{Id:int}"
+@using VM = TimeTrack.Shared.ViewModels
+@inject HttpClient Http
+
+<PageTitle>View Client</PageTitle>
+<MudText Typo="Typo.h1">View Client</MudText>
+
+@if (client.HasValue)
+{
+    <dl>
+        <dt>Abbreviation</dt>
+        <dd>@client.Value.Abbreviation</dd>
+        <dt>Treatment Setting</dt>
+        <dd>@client.Value.Setting.Name</dd>
+        <dt>Age</dt>
+        <dd>@client.Value.Age.Name</dd>
+        <dt>Race</dt>
+        <dd>@client.Value.Race.Name</dd>
+        <dt>Gender</dt>
+        <dd>@client.Value.Gender.Name</dd>
+        <dt>Sexual Orientation</dt>
+        <dd>@client.Value.SexualOrientation.Name</dd>
+        <dt>Disabilities</dt>
+        <dd>@String.Join(", ", client.Value.Disabilities.Select(d => d.Name).ToList())</dd>
+    </dl>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    VM.Client? client;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        client = await Http.GetFromJsonAsync<VM.Client>($"/api/Clients/{Id}");
+    }
+}

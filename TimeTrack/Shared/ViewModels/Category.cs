@@ -34,5 +34,6 @@ namespace TimeTrack.Shared.ViewModels
         {
             return Id;
         }
+        public static implicit operator Category(Models.Category c) => new(c.Name) { Id = c.Id, Type = c.Type };
     }
 }

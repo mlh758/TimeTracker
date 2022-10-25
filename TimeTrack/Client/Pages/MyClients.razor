@@ -1,5 +1,5 @@
 ﻿@page "/clients"
-@using TimeTrack.Shared.Models
+@using TimeTrack.Shared.ViewModels
 @inject HttpClient Http
 
 <PageTitle>My Clients</PageTitle>
@@ -11,17 +11,17 @@
     {
         @foreach (var client in clients)
         {
-            <MudListItem>@client.Abbreviation</MudListItem>
+            <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Abbreviation</MudLink></MudListItem>
         }
     }
 </MudList>
 
 
 @code {
-    private Client[]? clients;
+    private SummaryClient[]? clients;
 
     protected override async Task OnInitializedAsync()
     {
-        clients = await Http.GetFromJsonAsync<Client[]>("/api/Clients");
+        clients = await Http.GetFromJsonAsync<SummaryClient[]>("/api/Clients");
     }
 }
