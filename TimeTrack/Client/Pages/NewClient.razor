@@ -1,7 +1,6 @@
 ﻿@page "/clients/new"
 @using TimeTrack.Shared
-@using VM = TimeTrack.Shared.ViewModels
-@using TimeTrack.Shared.Models
+@using TimeTrack.Client.Components
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -9,74 +8,16 @@
 
 <MudText Typo="Typo.h1">New Client</MudText>
 
-<EditForm Model="model" OnValidSubmit="OnValidSubmit">
-    <MudTextField Label="Client Abbreviation" @bind-Value="model.Abbreviation" />
-    <DataAnnotationsValidator />
-
-    @if (categories is not null)
-    {
-        <MudSelect Label="Treatment Setting" @bind-Value=@model.Setting T="VM.Category">
-            @foreach (var item in ofType(CategoryType.TreatmentSetting))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-        <MudSelect Label="Age" @bind-Value=@model.Age T="VM.Category">
-            @foreach (var item in ofType(CategoryType.Age))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-        <MudSelect Label="Race" @bind-Value=@model.Race T="VM.Category">
-            @foreach (var item in ofType(CategoryType.Race))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-        <MudSelect Label="Gender" @bind-Value=@model.Gender T="VM.Category">
-            @foreach (var item in ofType(CategoryType.Gender))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-        <MudSelect Label="Sexual Orientation" @bind-Value=@model.SexualOrientation T="VM.Category">
-            @foreach (var item in ofType(CategoryType.SexualOrientation))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-        <MudSelect Label="Disabilities" @bind-SelectedValues=@model.Disabilities T="VM.Category" MultiSelection>
-            @foreach (var item in ofType(CategoryType.Disability))
-            {
-                <MudSelectItem Value="@item" />
-            }
-        </MudSelect>
-    } else {
-        <MudSkeleton Width="100%" Height="600px" />
-    }
-
-    <ValidationSummary />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Client</MudButton>
-</EditForm>
+<EditClient Model="@model" OnSubmit="@OnValidSubmit"/>
 
 @code {
     NewClientForm model = new NewClientForm();
-    VM.Category[]? categories;
 
-    async Task OnValidSubmit()
+    async Task OnValidSubmit(NewClientForm form)
     {
-        var response = await Http.PostAsync("/api/clients", JsonContent.Create(model));
+        var response = await Http.PostAsync("/api/clients", JsonContent.Create(form));
         if (response.IsSuccessStatusCode) {
             NavigationManager.NavigateTo("/clients");
         }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        categories = await Http.GetFromJsonAsync<VM.Category[]>("/api/Categories");
-    }
-
-    List<VM.Category> ofType(CategoryType t) {
-        return categories!.Where(c => c.Type == t).ToList();
     }
 }
