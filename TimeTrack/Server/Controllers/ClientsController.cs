@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using TimeTrack.Server.Data;
+using TimeTrack.Server.Repositories;
 using TimeTrack.Shared;
 using TimeTrack.Shared.ViewModels;
+using M = TimeTrack.Shared.Models;
 using VM = TimeTrack.Shared.ViewModels;
 
 namespace TimeTrack.Server.Controllers
@@ -14,43 +14,28 @@ namespace TimeTrack.Server.Controllers
     [Authorize]
     public class ClientsController : ControllerBase
     {
-        private readonly TimeContext _context;
-        public ClientsController(TimeContext context)
+        private readonly IClientRepository _clientRepository;
+        public ClientsController(IClientRepository repo)
         {
-            _context = context;
+            _clientRepository = repo;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<VM.Client>> GetClient(int id)
         {
             var userId = HttpContext.User.FindFirstValue("UserID");
-            var client = await ForUser(Convert.ToInt32(userId), id);
+            var client = await _clientRepository.Find(Convert.ToInt32(userId), id);
 
             if (client == null) 
             {
                 return NotFound();
             }
 
-            return client;
+            return MapToView(client);
         }
 
-        private async Task<VM.Client?> ForUser(int userId, int clientId)
+        private VM.Client MapToView(M.Client client)
         {
-            var client = await _context
-                .Clients
-                .Where(c => c.UserId == userId && c.Id == clientId)
-                .Include(c => c.Age)
-                .Include(c => c.Race)
-                .Include(c => c.Gender)
-                .Include(c => c.Setting)
-                .Include(c => c.SexualOrientation)
-                .FirstOrDefaultAsync();
-            if (client is null)
-            {
-                return null;
-            }
-
-            await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
             return new VM.Client()
             {
                 Abbreviation = client.Abbreviation,
@@ -68,7 +53,8 @@ namespace TimeTrack.Server.Controllers
         public async Task<ICollection<SummaryClient>> GetClients()
         {
             var userId = HttpContext.User.FindFirstValue("UserID");
-            return await _context.Clients.Where(c => c.UserId == Convert.ToInt32(userId)).Select(c => new SummaryClient() { Abbreviation = c.Abbreviation, Id = c.Id}).ToListAsync();
+            var clients = await _clientRepository.All(Convert.ToInt32(userId));
+            return clients.Select(c => new SummaryClient() { Abbreviation = c.Abbreviation, Id = c.Id }).ToList();
         }
 
         [HttpPost]
@@ -79,24 +65,17 @@ namespace TimeTrack.Server.Controllers
                 return BadRequest(ModelState);
             }
             // ensures the client is created against the current session
-            var userId = HttpContext.User.FindFirstValue("UserID");
-            var newClient = new Shared.Models.Client(clientData.Abbreviation!)
-            {
-                UserId = Convert.ToInt32(userId),
-                AgeId = clientData.Age!.Id,
-                SettingId = clientData.Setting!.Id,
-                SexualOrientationId = clientData.SexualOrientation!.Id,
-                GenderId = clientData.Gender!.Id,
-                RaceId = clientData.Race!.Id
-            };
-            if (clientData.Disabilities is not null)
-            {
-                var disabilityIds = clientData.Disabilities.Select(d => d.Id).ToList();
-                newClient.Disabilities = await _context.Categories.Where(c => c.Type == Shared.Models.CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
-            }
-            _context.Add(newClient);
-            await _context.SaveChangesAsync();
+            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var newClient = await _clientRepository.Create(userId, clientData);
             return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, new SummaryClient() { Id = newClient.Id, Abbreviation = newClient.Abbreviation });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteClient(int id)
+        {
+            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            await _clientRepository.Destroy(userId, id);
+            return Ok();
         }
 
     }

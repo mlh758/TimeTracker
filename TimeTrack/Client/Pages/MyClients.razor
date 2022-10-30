@@ -6,15 +6,18 @@
 
 <MudText Typo="Typo.h1">My Clients</MudText>
 
-<MudList>
-    @if (clients is not null)
-    {
-        @foreach (var client in clients)
+<MudPaper>
+    <MudList>
+        @if (clients is not null)
         {
-            <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Abbreviation</MudLink></MudListItem>
+            @foreach (var client in clients)
+            {
+                <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Abbreviation</MudLink></MudListItem>
+            }
+
         }
-    }
-</MudList>
+    </MudList>
+</MudPaper>
 
 
 @code {

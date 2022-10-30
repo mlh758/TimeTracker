@@ -1,9 +1,20 @@
 ﻿@page "/clients/{Id:int}"
 @using VM = TimeTrack.Shared.ViewModels
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <PageTitle>View Client</PageTitle>
 <MudText Typo="Typo.h1">View Client</MudText>
+
+@if (loadError)
+{
+    <MudAlert Severity="Severity.Error">Unable to load this client.</MudAlert>
+}
+
+@if (notFound)
+{
+    <MudAlert Severity="Severity.Warning">Unable to find this client. Check the My Clients page.</MudAlert>
+}
 
 @if (client.HasValue)
 {
@@ -23,6 +34,11 @@
         <dt>Disabilities</dt>
         <dd>@String.Join(", ", client.Value.Disabilities.Select(d => d.Name).ToList())</dd>
     </dl>
+
+    <div class="actions">
+        <MudButton Variant="Variant.Outlined">Edit</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@Delete">Delete</MudButton>
+    </div>
 }
 
 @code {
@@ -30,10 +46,35 @@
     public int Id { get; set; }
 
     VM.Client? client;
+    bool loadError = false;
+    bool notFound = false;
 
 
     protected override async Task OnInitializedAsync()
     {
-        client = await Http.GetFromJsonAsync<VM.Client>($"/api/Clients/{Id}");
+        try
+        {
+            client = await Http.GetFromJsonAsync<VM.Client>($"/api/Clients/{Id}");
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                notFound = true;
+            }
+            else
+            {
+                loadError = true;
+            }
+        }
+    }
+
+    private async Task Delete()
+    {
+        var response = await Http.DeleteAsync($"/api/Clients/{Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/clients");
+        }
     }
 }
