@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTrack.Shared", "TimeTra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeTrack.ClientTests", "TimeTrack\TimeTrack.ClientTests\TimeTrack.ClientTests.csproj", "{3256E439-8AA4-4EE5-9842-020293D9CD42}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeTrack.ServerTests", "TimeTrack\TimeTrack.ServerTests\TimeTrack.ServerTests.csproj", "{B53E2EA1-06D2-495F-9EF8-F74FD5C22B32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{3256E439-8AA4-4EE5-9842-020293D9CD42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3256E439-8AA4-4EE5-9842-020293D9CD42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3256E439-8AA4-4EE5-9842-020293D9CD42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B53E2EA1-06D2-495F-9EF8-F74FD5C22B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B53E2EA1-06D2-495F-9EF8-F74FD5C22B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B53E2EA1-06D2-495F-9EF8-F74FD5C22B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B53E2EA1-06D2-495F-9EF8-F74FD5C22B32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
