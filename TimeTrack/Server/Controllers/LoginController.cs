@@ -57,6 +57,13 @@ namespace TimeTrack.Server.Controllers
             });
         }
 
+        [HttpDelete]
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return Ok();
+        }
+
         [HttpGet]
         public ActionResult<VM.User> Login()
         {

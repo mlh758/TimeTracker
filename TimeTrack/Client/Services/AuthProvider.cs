@@ -43,5 +43,11 @@ namespace TimeTrack.Client.Services
         {
             await _auth.Register(form);
         }
+
+        public async Task Logout()
+        {
+            await _auth.Logout();
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        }
     }
 }
