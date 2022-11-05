@@ -14,7 +14,7 @@
         <MudButton Class="homeButton" Href="/" StartIcon="@Icons.Material.Filled.Home">Time Tracker</MudButton>
         <MudSpacer />
         <p class="links">
-            <MudToggleIconButton Size="Size.Small" @bind-Toggled="@_isDarkMode" ToggledTitle="Use light mode" ToggledIcon="@Icons.Material.Filled.LightMode" Title="Use dark mode" Icon="@Icons.Material.Outlined.DarkMode"/>
+            <MudToggleIconButton ToggledSize="Size.Small"  Size="Size.Small" @bind-Toggled="@_isDarkMode" ToggledTitle="Use light mode" ToggledIcon="@Icons.Material.Filled.LightMode" Title="Use dark mode" Icon="@Icons.Material.Outlined.DarkMode"/>
             <AuthorizeView>
                 <Authorized>
                     <a href="/logout">Log out</a>
@@ -64,7 +64,10 @@
                 Tertiary = "#f5b7b6",
                 TertiaryContrastText = "#4c2525",
                 AppbarBackground = "#e8b3ff",
-                Background = "#1e1b1e"
+                AppbarText = "#4a1764",
+                Background = "#1e1b1e",
+                TextPrimary = "#e8e0e5",
+                TextSecondary = "#392c3e"
             }
         };
 
