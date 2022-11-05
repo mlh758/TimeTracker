@@ -70,6 +70,23 @@ namespace TimeTrack.Server.Controllers
             return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, new SummaryClient() { Id = newClient.Id, Abbreviation = newClient.Abbreviation });
         }
 
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<SummaryClient>> EditClient(int id, NewClientForm clientData)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            // ensures the client is created against the current session
+            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var updatedClient = await _clientRepository.Update(userId, id, clientData);
+            if (updatedClient is null)
+            {
+                return NotFound();
+            }
+            return CreatedAtAction(nameof(GetClient), new { id = updatedClient.Id }, new SummaryClient() { Id = updatedClient.Id, Abbreviation = updatedClient.Abbreviation });
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteClient(int id)
         {

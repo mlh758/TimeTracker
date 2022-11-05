@@ -11,6 +11,7 @@ namespace TimeTrack.Server.Repositories
         public Task<M.Client?> Find(int userId, int clientId);
         public Task<List<M.Client>> All(int userId);
         public Task<M.Client> Create(int userId, NewClientForm form);
+        public Task<M.Client?> Update(int userId, int clientId, NewClientForm form);
         public Task Destroy(int userId, int clientId);
     }
     public class ClientRepository : IClientRepository
@@ -36,11 +37,33 @@ namespace TimeTrack.Server.Repositories
             if (clientData.Disabilities is not null)
             {
                 var disabilityIds = clientData.Disabilities.Select(d => d.Id).ToList();
-                newClient.Disabilities = await _context.Categories.Where(c => c.Type == Shared.Models.CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
+                newClient.Disabilities = await _context.Categories.Where(c => c.Type == M.CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
             }
             _context.Add(newClient);
             await _context.SaveChangesAsync();
             return newClient;
+        }
+
+        public async Task<M.Client?> Update(int userId, int clientId, NewClientForm clientData)
+        {
+            var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
+            await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
+            if (client is null)
+            {
+                return null;
+            }
+            client.AgeId = clientData.Age!.Id;
+            client.SettingId = clientData.Setting!.Id;
+            client.SexualOrientationId = clientData.SexualOrientation!.Id;
+            client.GenderId = clientData.Gender!.Id;
+            client.RaceId = clientData.Race!.Id;
+
+            var disabilities = clientData.Disabilities!.Select(d => d.Id).ToList();
+            client.Disabilities = await _context.Categories.Where(c => c.Type == M.CategoryType.Disability && disabilities.Contains(c.Id)).ToListAsync();
+
+            await _context.SaveChangesAsync();
+            return client;
+
         }
 
         public async Task<M.Client?> Find(int userId, int clientId)

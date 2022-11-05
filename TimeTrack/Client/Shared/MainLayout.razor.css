@@ -11,3 +11,7 @@
 .links a:visited {
     color: var(--mud-palette-primary-text);
 }
+
+.homeButton {
+    color: var(--mud-palette-primary-text);
+}

@@ -1,0 +1,83 @@
+﻿@page "/clients/{Id:int}/edit"
+@using VM = TimeTrack.Shared.ViewModels
+@using TimeTrack.Client.Components
+@using TimeTrack.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit Client</PageTitle>
+<MudText Typo="Typo.h1">Edit Client</MudText>
+
+@if (loadError)
+{
+    <MudAlert Severity="Severity.Error">Unable to load this client.</MudAlert>
+}
+
+@if (notFound)
+{
+    <MudAlert Severity="Severity.Warning">Unable to find this client. Check the My Clients page.</MudAlert>
+}
+
+@if (saveError)
+{
+<MudAlert Severity="Severity.Error">Unable to save your changes. The client has not been modified.</MudAlert>
+}
+
+@if (form is not null)
+{
+    <ClientEditor Model="form" OnSubmit="OnValidSubmit"/>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    NewClientForm? form;
+
+    bool loadError = false;
+    bool notFound = false;
+    bool saveError = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var client = await Http.GetFromJsonAsync<VM.Client>($"/api/Clients/{Id}");
+            form = new NewClientForm()
+            {
+                Abbreviation = client.Abbreviation,
+                Age = client.Age,
+                Race = client.Race,
+                Gender = client.Gender,
+                Setting = client.Setting,
+                SexualOrientation = client.Setting,
+                Disabilities = client.Disabilities,
+
+            };
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                notFound = true;
+            }
+            else
+            {
+                loadError = true;
+            }
+        }
+    }
+
+    async Task OnValidSubmit(NewClientForm form)
+    {
+        var response = await Http.PatchAsync($"/api/clients/{Id}", JsonContent.Create(form));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/clients/{Id}");
+        } else
+        {
+            saveError = true;
+        }
+    }
+}

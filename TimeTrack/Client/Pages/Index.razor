@@ -4,13 +4,53 @@
 
 <PageTitle>Time Tracker</PageTitle>
 
-
-Welcome to Time Tracker
 <AuthorizeView>
     <Authorized>
         <RecentActivity />
     </Authorized>
     <NotAuthorized>
-        <p><a href="/login">Log in</a></p>
+        <MudContainer Class="mt-16">
+            <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">Pricing</MudText>
+            <MudText Align="Align.Center">Try for 30 days with no obligation.</MudText>
+            <MudText Align="Align.Center">You will always be able to access your data - even if your subscription lapses.</MudText>
+            <MudGrid Class="mt-8">
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="25" Class="rounded-lg pb-4">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">Monthly</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex justify-center">
+                                <MudText Typo="Typo.h3">$6</MudText>
+                                <MudText Typo="Typo.h5" Class="ml-1 mt-5" Color="Color.Secondary">/Monthly</MudText>
+                            </div>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="width:50%;" Href="/register">Start Now</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudCard Elevation="25" Class="rounded-lg pb-4">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">Annual</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <div class="d-flex justify-center">
+                                <MudText Typo="Typo.h3">$60 </MudText>
+                                <MudText Typo="Typo.h5" Class="ml-1 mt-5" Color="Color.Secondary">/Yearly</MudText>
+                            </div>
+                        </MudCardContent>
+                        <MudCardActions Class="d-flex justify-center">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="width:50%;" Href="/register">Start Now</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
     </NotAuthorized>
 </AuthorizeView>

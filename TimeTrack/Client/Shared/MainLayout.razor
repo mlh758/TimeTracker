@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
 
-<MudThemeProvider />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode"  Theme="MyCustomTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -11,9 +11,10 @@
         <AuthorizeView>
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         </AuthorizeView>
-        <span>Time Tracker</span>
+        <MudButton Class="homeButton" Href="/" StartIcon="@Icons.Material.Filled.Home">Time Tracker</MudButton>
         <MudSpacer />
         <p class="links">
+            <MudToggleIconButton Size="Size.Small" @bind-Toggled="@_isDarkMode" ToggledTitle="Use light mode" ToggledIcon="@Icons.Material.Filled.LightMode" Title="Use dark mode" Icon="@Icons.Material.Outlined.DarkMode"/>
             <AuthorizeView>
                 <Authorized>
                     <a href="/logout">Log out</a>
@@ -24,14 +25,14 @@
                 </NotAuthorized>
             </AuthorizeView>
         </p>
-        
+
     </MudAppBar>
     <AuthorizeView>
         <MudDrawer @bind-Open="@_drawerOpen">
             <NavLinks />
         </MudDrawer>
     </AuthorizeView>
-    
+
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Medium">
             @Body
@@ -41,6 +42,31 @@
 
 @code {
     bool _drawerOpen = true;
+    private bool _isDarkMode;
+
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            Palette = new Palette()
+            {
+                Primary = "#5C4A63",
+                Secondary = "#9c8ba1",
+                Tertiary = "#ba8382",
+                AppbarBackground = "#5C4A63",
+                Background = "#fffbff"
+            },
+            PaletteDark = new Palette()
+            {
+                Primary = "#e8b3ff",
+                PrimaryContrastText = "#4a1764",
+                Surface = "#63307c",
+                Secondary = "#d4c0d8",
+                SecondaryContrastText = "#392c3e",
+                Tertiary = "#f5b7b6",
+                TertiaryContrastText = "#4c2525",
+                AppbarBackground = "#e8b3ff",
+                Background = "#1e1b1e"
+            }
+        };
 
     void DrawerToggle()
     {
