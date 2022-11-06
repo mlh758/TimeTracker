@@ -5,6 +5,7 @@ namespace TimeTrack.Shared.Models
     public class Client
     {
         public int Id { get; set; }
+        [MaxLength(16)]
         public string Abbreviation { get; set; }
 
         public int AgeId { get; set; }

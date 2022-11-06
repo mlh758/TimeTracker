@@ -36,7 +36,7 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<List<Activity>> ForUserWithin(int userId, DateTime start, DateTime end)
         {
-            var activity = userActivity(userId).Where(a => a.Start >= start && a.End <= end).Include(a => a.Assessments).Include(a => a.Client);
+            var activity = userActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client);
             return await activity.ToListAsync();
         }
 

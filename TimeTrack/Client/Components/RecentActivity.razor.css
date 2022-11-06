@@ -1,11 +1,12 @@
 ﻿.calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 1px
+    gap: 1px;
 }
 
 .calendar-bg {
     background-color: var(--mud-palette-grey-light);
+    color: black;
 }
 
 .calendar > span {
@@ -67,4 +68,5 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    flex: 1 40%;
 }

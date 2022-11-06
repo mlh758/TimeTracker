@@ -11,7 +11,7 @@
 <EditForm Model="model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
 
-    <MudTextField T="DateTime?" Format="s" Label="Start Time" InputType="InputType.DateTimeLocal" @bind-Value="model.Start" />
+    <MudTextField T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="model.Start" />
     <MudTextField T="int?"  Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="model.Duration" />
     @if (loading)
     {

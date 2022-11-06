@@ -20,7 +20,7 @@
                         </CardHeaderAvatar>
                         <CardHeaderContent>
                             <MudText Typo="Typo.body1">@activity.Client.Abbreviation</MudText>
-                            <MudText Typo="Typo.body2">@((@activity.End - @activity.Start).TotalHours)</MudText>
+                            <MudText Typo="Typo.body2">@((new TimeSpan(0, activity.Duration, 0)).TotalHours) hour(s)</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>

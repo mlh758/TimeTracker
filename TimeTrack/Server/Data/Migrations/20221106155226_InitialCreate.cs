@@ -58,7 +58,7 @@ namespace TimeTrack.Server.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Abbreviation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Abbreviation = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
                     AgeId = table.Column<int>(type: "int", nullable: false),
                     SettingId = table.Column<int>(type: "int", nullable: false),
                     SexualOrientationId = table.Column<int>(type: "int", nullable: false),
@@ -113,8 +113,8 @@ namespace TimeTrack.Server.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Start = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Start = table.Column<DateTime>(type: "date", nullable: false),
+                    Duration = table.Column<int>(type: "int", nullable: false, comment: "Duration in minutes"),
                     ClientId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

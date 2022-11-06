@@ -47,11 +47,11 @@ namespace TimeTrack.Server.Repositories
         public async Task<M.Client?> Update(int userId, int clientId, NewClientForm clientData)
         {
             var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
-            await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
             if (client is null)
             {
                 return null;
             }
+            await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
             client.AgeId = clientData.Age!.Id;
             client.SettingId = clientData.Setting!.Id;
             client.SexualOrientationId = clientData.SexualOrientation!.Id;

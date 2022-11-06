@@ -15,10 +15,6 @@ namespace TimeTrack.Server.Controllers
     [Authorize]
     public class ClientActivitiesController : ControllerBase
     {
-        public class NewActivity : Activity
-        {
-            public int Duration { get; set; }
-        }
         private readonly IActivityRepository _activityRepo;
         private readonly IAssessmentRepository _assessmentRepo;
         public ClientActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository)
@@ -51,7 +47,7 @@ namespace TimeTrack.Server.Controllers
             return activities.Select(a => new VM.ClientActivity()
             {
                 Start = a.Start,
-                End = a.End,
+                Duration = a.Duration,
                 Client = new VM.SummaryClient() { Abbreviation = a.Client!.Abbreviation, Id = a.ClientId },
                 Assessments = a.Assessments!.Select(a => new VM.Assessment { Name = a.Name }).ToList(),
 
@@ -59,7 +55,7 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Activity>> CreateClientActivity(NewActivity body)
+        public async Task<ActionResult<Activity>> CreateClientActivity(Activity body)
         {
             if (body.Client is null || body.Assessments is null)
             {
@@ -70,7 +66,7 @@ namespace TimeTrack.Server.Controllers
             var newActivity = new Activity
             {
                 Start = body.Start,
-                End = body.Start.AddMinutes(body.Duration),
+                Duration = body.Duration,
                 ClientId = body.Client.Id,
                 Assessments = assessments.ToList(),
             };

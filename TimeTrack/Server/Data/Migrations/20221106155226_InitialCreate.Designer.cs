@@ -12,7 +12,7 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    [Migration("20221023184612_InitialCreate")]
+    [Migration("20221106155226_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,11 +65,12 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Duration")
+                        .HasColumnType("int")
+                        .HasComment("Duration in minutes");
 
                     b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -126,7 +127,8 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.Property<string>("Abbreviation")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
 
                     b.Property<int>("AgeId")
                         .HasColumnType("int");
