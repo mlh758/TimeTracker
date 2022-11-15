@@ -8,10 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Components\ActivityEditor.razor.css" />
+    <None Remove="Components\ScheduleEditor.razor.css" />
     <None Remove="Pages\ShowClient.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Components\ActivityEditor.razor.css" />
+    <Content Include="Components\ScheduleEditor.razor.css" />
     <Content Include="Pages\ShowClient.razor.css" />
   </ItemGroup>
 

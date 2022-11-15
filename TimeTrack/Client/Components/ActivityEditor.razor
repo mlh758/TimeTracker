@@ -1,0 +1,137 @@
+﻿@using TimeTrack.Shared
+@using TimeTrack.Shared.Models
+@using TimeTrack.Client.Components
+@inject HttpClient Http
+
+<EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <MudTextField Required T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="Model.Start" />
+    <MudTextField Required T="int?" Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="Model.Duration" />
+
+    @if (loading)
+    {
+        <MudSkeleton Width="100%" Height="2rem" />
+        <MudSkeleton Width="100%" Height="2rem" />
+    }
+    else
+    {
+        <MudAutocomplete Required T="Client" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Abbreviation)" Clearable ResetValueOnEmptyText />
+        <MudAutocomplete T="Assessment"
+                     @ref="assessmentSearch"
+                     Label="Choose Assessments"
+                     SearchFunc="@SearchAssessments"
+                     ToStringFunc="@(e=> e.Name)"
+                     ValueChanged="OnAssessmentChosen"
+                     Clearable
+                     ResetValueOnEmptyText
+                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                     HelperText="Search for assessments" />
+
+        @foreach (var a in Model.Assessments)
+        {
+            <MudChip Color="Color.Secondary" Variant="Variant.Outlined" OnClose="@(() => Model.Assessments.Remove(a))">
+                <span class="chip-text">
+                    @a.Name
+                </span>
+            </MudChip>
+        }
+        <section>
+            <MudSwitch T="bool" Label="This is a recurring activity" Checked="@(Model.Schedule is not null)" CheckedChanged="@OnChangeSchedule" Color="Color.Primary" />
+            @if (Model.Schedule is not null)
+            {
+                <ScheduleEditor Schedule="@Model.Schedule" />
+            }
+        </section>
+    }
+
+    <div>
+        <ValidationSummary />
+    </div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Activity</MudButton>
+</EditForm>
+@code {
+    [Parameter, EditorRequired]
+    public ActivityForm Model { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<ActivityForm> OnSubmit { get; set; }
+
+    private Client[]? clients;
+    private Assessment[]? assessments;
+    private bool loading = true;
+    private MudAutocomplete<Assessment>? assessmentSearch;
+
+    private void OnChangeSchedule(bool isChecked)
+    {
+        if (isChecked)
+        {
+            Model.Schedule = new Schedule()
+                {
+                    EndSchedule = DateTime.Today.AddMonths(6),
+                };
+        }
+        else
+        {
+            Model.Schedule = null;
+        }
+    }
+
+    private async void OnAssessmentChosen(Assessment chosen)
+    {
+        if (chosen is not null)
+        {
+            Model.Assessments.Add(chosen);
+        }
+        if (assessmentSearch is not null)
+        {
+            await assessmentSearch.Clear();
+            await assessmentSearch.BlurAsync();
+        }
+    }
+
+    private async Task<IEnumerable<Client>> SearchClients(string text)
+    {
+        await Task.Delay(0); // forcing this to be async I guess
+        if (clients is null)
+        {
+            return new List<Client>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return clients;
+        }
+
+        return clients.Where(e => e.Abbreviation.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
+    {
+        await Task.Delay(0);
+        if (assessments is null)
+        {
+            return new List<Assessment>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return assessments;
+        }
+
+        return assessments.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    async Task OnValidSubmit()
+    {
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var clientsTask = Http.GetFromJsonAsync<Client[]>("/api/Clients");
+        assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
+        clients = await clientsTask;
+        loading = false;
+    }
+}

@@ -16,7 +16,7 @@ namespace TimeTrack.Server.Services.Tests
         {
             var schedule = new Schedule()
             {
-                EndSchedule = stop,
+                EndSchedule = stop.ToDateTime(TimeOnly.MinValue),
                 Frequency = freq,
                 DaysOfWeek = weekdays,
             };
@@ -27,7 +27,7 @@ namespace TimeTrack.Server.Services.Tests
         {
             var schedule = new Schedule()
             {
-                EndSchedule = stop,
+                EndSchedule = stop.ToDateTime(TimeOnly.MinValue),
                 Frequency = freq,
                 Interval = interval,
             };

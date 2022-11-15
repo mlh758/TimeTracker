@@ -1,0 +1,4 @@
+﻿::deep .selected {
+    background-color:  var(--mud-palette-primary-lighten) !important;
+    color: var(--mud-palette-primary-text) !important;
+}

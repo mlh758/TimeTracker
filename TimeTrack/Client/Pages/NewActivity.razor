@@ -1,6 +1,6 @@
 ﻿@page "/client_activity/new"
 @using TimeTrack.Shared
-@using TimeTrack.Shared.Models
+@using TimeTrack.Client.Components
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 
@@ -8,110 +8,14 @@
 
 <MudText Typo="Typo.h1">New Activity</MudText>
 
-<EditForm Model="model" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator />
-
-    <MudTextField T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="model.Start" />
-    <MudTextField T="int?"  Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="model.Duration" />
-    @if (loading)
-    {
-        <MudSkeleton Width="100%" Height="2rem"/>
-        <MudSkeleton Width="100%" Height="2rem" />
-    }
-    else
-    {
-        <MudAutocomplete T="Client" Label="Choose Client" @bind-Value="model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Abbreviation)" Clearable ResetValueOnEmptyText />
-        <MudAutocomplete T="Assessment"
-            @ref="assessmentSearch"
-            Label="Choose Assessments"
-            SearchFunc="@SearchAssessments"
-            ToStringFunc="@(e=> e.Name)"
-            ValueChanged="OnAssessmentChosen"
-            Clearable
-            ResetValueOnEmptyText
-            AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-            HelperText="Search for assessments"
-        />
-
-        @foreach (var a in model.Assessments)
-        {
-            <MudChip Color="Color.Secondary" Variant="Variant.Outlined" OnClose="@(() => model.Assessments.Remove(a))">
-                <span class="chip-text">
-                    @a.Name
-                </span>
-            </MudChip>
-        }
-        
-    }
-    <div>
-        <ValidationSummary />
-    </div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Activity</MudButton>
-</EditForm>
+<ActivityEditor Model="@model" OnSubmit="@OnValidSubmit"/>
 
 @code {
     ActivityForm model = new ActivityForm();
 
-    private Client[]? clients;
-    private Assessment[]? assessments;
-    private bool loading = true;
-    private MudAutocomplete<Assessment>? assessmentSearch;
-
-    private async void OnAssessmentChosen(Assessment chosen)
+    async Task OnValidSubmit(ActivityForm form)
     {
-        if (chosen is not null)
-        {
-            model.Assessments.Add(chosen);
-        }
-        if (assessmentSearch is not null) {
-            await assessmentSearch.Clear();
-            await assessmentSearch.BlurAsync();
-        }
-    }
-
-    private async Task<IEnumerable<Client>> SearchClients(string text)
-    {
-        await Task.Delay(0); // forcing this to be async I guess
-        if (clients is null)
-        {
-            return new List<Client>();
-        }
-
-        if (String.IsNullOrEmpty(text))
-        {
-            return clients;
-        }
-
-        return clients.Where(e => e.Abbreviation.Contains(text, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
-    {
-        await Task.Delay(0);
-        if (assessments is null)
-        {
-            return new List<Assessment>();
-        }
-
-        if (String.IsNullOrEmpty(text))
-        {
-            return assessments;
-        }
-
-        return assessments.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
-    }
-
-    async Task OnValidSubmit()
-    {
-        var response = await Http.PostAsync("/api/clientactivities", JsonContent.Create(model));
+        var response = await Http.PostAsync("/api/clientactivities", JsonContent.Create(form));
         NavigationManager.NavigateTo("/");
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var clientsTask = Http.GetFromJsonAsync<Client[]>("/api/Clients");
-        assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
-        clients = await clientsTask;
-        loading = false;
     }
 }

@@ -9,7 +9,10 @@ namespace TimeTrack.Shared
         [Required]
         public DateTime? Start { get; set; }
         [Required]
+        [Range(0, 1440, ErrorMessage = "Duration is limited to the number of minutes in a day (0 - 1440)")] // 1440 is minutes in a 24 hour period
         public int? Duration { get; set; }
+
+        public Schedule? Schedule { get; set; }
 
         public int? ClientId;
 

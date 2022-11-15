@@ -13,19 +13,14 @@ namespace TimeTrack.Server.Services
 
         public IEnumerable<DateOnly> Dates()
         {
-            switch (_schedule.Frequency)
+            return _schedule.Frequency switch
             {
-                case Frequency.Monthly:
-                    return Monthly();
-                case Frequency.Weekdays:
-                    return Weekdays();
-                case Frequency.Weekly:
-                    return Weekly();
-                case Frequency.Daily:
-                    return Daily();
-                default:
-                    throw new ArgumentOutOfRangeException("Unknown schedule frequency");
-            }
+                Frequency.Monthly => Monthly(),
+                Frequency.Weekdays => Weekdays(),
+                Frequency.Weekly => Weekly(),
+                Frequency.Daily => Daily(),
+                _ => throw new ArgumentOutOfRangeException("Unknown schedule frequency"),
+            };
         }
 
         private IEnumerable<DateOnly> Daily()
@@ -89,7 +84,8 @@ namespace TimeTrack.Server.Services
         private IEnumerable<DateOnly> Stepper(Func<DateOnly, DateOnly> step, DateOnly start)
         {
             var current = start;
-            while (current < _schedule.EndSchedule)
+            var end = DateOnly.FromDateTime(_schedule.EndSchedule);
+            while (current < end)
             {
                 yield return current;
                 current = step(current);

@@ -1,0 +1,50 @@
+﻿@using TimeTrack.Shared.Models
+@inject ILogger<ScheduleEditor> logger
+
+<section>
+    <MudStack Spacing=2>
+        <MudTextField Required T="DateTime" Format="yyyy-MM-dd" Label="Stop Date" InputType="InputType.Date" @bind-Value="Schedule.EndSchedule" HelperText="Date to stop the recurring event, up to 1 year" />
+        <MudSelect Label="Frequency" @bind-Value="@Schedule.Frequency">
+            <MudSelectItem Value="Frequency.Daily">Daily</MudSelectItem>
+            <MudSelectItem Value="Frequency.Weekdays">Weekdays</MudSelectItem>
+            <MudSelectItem Value="Frequency.Weekly">Weekly</MudSelectItem>
+            <MudSelectItem Value="Frequency.Monthly">Monthly</MudSelectItem>
+        </MudSelect>
+
+        <MudTextField Required T="ushort" Label="Interval" HelperText="Gap between events. For example, 2 for every other day" InputType="InputType.Number" @bind-Value="Schedule.Interval" />
+
+        @if (Schedule.Frequency == Frequency.Weekly)
+        {
+            <MudText Typo="Typo.caption">Select days for this activity:</MudText>
+            <MudButtonGroup>
+                @foreach (var (i, day) in EachDay())
+                {
+                    <MudButton Class="@(WeekdayClass(i))" type="button" @onclick="() => HandleWeekdays(i)">@day</MudButton>
+                }
+            </MudButtonGroup>
+        }
+    </MudStack>
+</section>
+
+@code {
+    [Parameter]
+    public Schedule Schedule { get; set; } = new Schedule();
+
+    private List<string> Weekdays = new() { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+
+    private IEnumerable<(int, string)> EachDay()
+    {
+        return Enumerable.Range(0, 7).Zip(Weekdays);
+    }
+
+    private void HandleWeekdays(int i)
+    {
+        Schedule.DaysOfWeek = (byte)(Schedule.DaysOfWeek ^ (0b_1000_0000 >> i));
+        logger.LogInformation("Called with {day}. Now {value}", i, Schedule.DaysOfWeek);
+    }
+
+    private string WeekdayClass(int i)
+    {
+        return ((0b_1000_0000 >> i) & Schedule.DaysOfWeek) != 0 ? "selected" : "";
+    }
+}
