@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using TimeTrack.Server.Services;
 
 namespace TimeTrack.Server.Repositories
 {
@@ -12,6 +13,8 @@ namespace TimeTrack.Server.Repositories
         public Task<List<Activity>> ForUserWithin(int userId, DateTime start, DateTime end);
         public Task<Activity?> Find(int userId, int Id);
         public Task<Activity> Create(Activity activity);
+
+        public Task<int> CreateScheduled(Activity activity);
     }
     public class ActivityRepository : IActivityRepository
     {
@@ -29,6 +32,7 @@ namespace TimeTrack.Server.Repositories
             return activity;
         }
 
+
         public async Task<Activity?> Find(int userId, int Id)
         {
             return await userActivity(userId).Where(a => a.Id == Id).FirstOrDefaultAsync();
@@ -40,6 +44,25 @@ namespace TimeTrack.Server.Repositories
             return await activity.ToListAsync();
         }
 
+        public async Task<int> CreateScheduled(Activity activity)
+        {
+            if (activity.Schedule is null)
+            {
+                throw new ArgumentException("creating a scheduled activity requires a schedule");
+            }
+            _context.Schedules.Add(activity.Schedule);
+            await _context.SaveChangesAsync();
+            var generator = new ScheduleGenerator(DateOnly.FromDateTime(activity.Start), activity.Schedule);
+            var activities = generator.Dates().Select(d => new Activity(activity) { Start = d.ToDateTime(TimeOnly.MinValue) });
+            var count = 0;
+            foreach (var a in activities)
+            {
+                count++;
+                _context.Activities.Add(a);
+            }
+            await _context.SaveChangesAsync();
+            return count;
+        }
 
         private IQueryable<Activity> userActivity(int userId)
         {

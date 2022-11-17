@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using VM = TimeTrack.Shared.ViewModels;
 using TimeTrack.Server.Repositories;
 using System.Linq;
+using TimeTrack.Shared;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -55,9 +56,9 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Activity>> CreateClientActivity(Activity body)
+        public async Task<ActionResult> CreateClientActivity(ActivityForm body)
         {
-            if (body.Client is null || body.Assessments is null)
+            if (body.Client is null || body.Assessments is null || !ModelState.IsValid)
             {
                 return BadRequest();
             }
@@ -65,13 +66,22 @@ namespace TimeTrack.Server.Controllers
             var assessments = await _assessmentRepo.FindById(body.Assessments.Select(el => el.Id));
             var newActivity = new Activity
             {
-                Start = body.Start,
-                Duration = body.Duration,
+                Start = body.Start!.Value!,
+                Duration = body.Duration!.Value,
                 ClientId = body.Client.Id,
+                Schedule = body.Schedule,
                 Assessments = assessments.ToList(),
             };
-            newActivity = await _activityRepo.Create(newActivity);
-            return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, newActivity);
+            if (newActivity.Schedule is null)
+            {
+                newActivity = await _activityRepo.Create(newActivity);
+                return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, newActivity);
+
+            } else
+            {
+                await _activityRepo.CreateScheduled(newActivity);
+                return CreatedAtAction(nameof(GetActivities), null);
+            }
         }
 
     }
