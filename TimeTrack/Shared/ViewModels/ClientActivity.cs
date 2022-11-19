@@ -1,10 +1,5 @@
 ﻿namespace TimeTrack.Shared.ViewModels
-{
-    public readonly struct Assessment
-    {
-        public string Name { get; init; }
-    }
-
+{ 
     public readonly struct ClientActivity
     {
         public DateTime Start { get; init; }

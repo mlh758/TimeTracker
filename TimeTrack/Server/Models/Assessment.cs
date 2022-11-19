@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace TimeTrack.Shared.Models
+namespace TimeTrack.Server.Models
 {
     public class Assessment
     {

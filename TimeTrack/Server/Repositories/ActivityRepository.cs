@@ -1,5 +1,5 @@
 ﻿using TimeTrack.Server.Data;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

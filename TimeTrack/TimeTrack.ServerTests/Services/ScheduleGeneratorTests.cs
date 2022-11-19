@@ -1,11 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TimeTrack.Server.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
+using TimeTrack.Shared.Enums;
 
 namespace TimeTrack.Server.Services.Tests
 {

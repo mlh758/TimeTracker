@@ -1,4 +1,4 @@
-﻿using TimeTrack.Shared.Models;
+﻿using TimeTrack.Server.Models;
 using TimeTrack.Server.Data;
 using Microsoft.EntityFrameworkCore;
 

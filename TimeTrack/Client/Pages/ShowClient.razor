@@ -16,23 +16,23 @@
     <MudAlert Severity="Severity.Warning">Unable to find this client. Check the My Clients page.</MudAlert>
 }
 
-@if (client.HasValue)
+@if (client is not null)
 {
     <dl>
         <dt>Abbreviation</dt>
-        <dd>@client.Value.Abbreviation</dd>
+        <dd>@client.Abbreviation</dd>
         <dt>Treatment Setting</dt>
-        <dd>@client.Value.Setting.Name</dd>
+        <dd>@client.Setting.Name</dd>
         <dt>Age</dt>
-        <dd>@client.Value.Age.Name</dd>
+        <dd>@client.Age.Name</dd>
         <dt>Race</dt>
-        <dd>@client.Value.Race.Name</dd>
+        <dd>@client.Race.Name</dd>
         <dt>Gender</dt>
-        <dd>@client.Value.Gender.Name</dd>
+        <dd>@client.Gender.Name</dd>
         <dt>Sexual Orientation</dt>
-        <dd>@client.Value.SexualOrientation.Name</dd>
+        <dd>@client.SexualOrientation.Name</dd>
         <dt>Disabilities</dt>
-        <dd>@String.Join(", ", client.Value.Disabilities.Select(d => d.Name).ToList())</dd>
+        <dd>@String.Join(", ", client.Disabilities.Select(d => d.Name).ToList())</dd>
     </dl>
 
     <div class="actions">

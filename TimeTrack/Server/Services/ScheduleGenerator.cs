@@ -1,4 +1,5 @@
-﻿using TimeTrack.Shared.Models;
+﻿using TimeTrack.Server.Models;
+using TimeTrack.Shared.Enums;
 namespace TimeTrack.Server.Services
 {
     public class ScheduleGenerator

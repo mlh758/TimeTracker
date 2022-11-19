@@ -1,15 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-namespace TimeTrack.Shared.Models
+﻿using TimeTrack.Shared.Enums;
+using VM = TimeTrack.Shared.ViewModels;
+namespace TimeTrack.Server.Models
 {
-    public enum CategoryType
-    {
-        Age,
-        Gender,
-        TreatmentSetting,
-        Disability,
-        Race,
-        SexualOrientation
-    }
+    
     public class Category
     {
         public int Id { get; set; }
@@ -39,5 +32,6 @@ namespace TimeTrack.Shared.Models
         {
             return Name;
         }
+        public static implicit operator VM.Category(Category c) => new(c.Name) { Id = c.Id, Type = c.Type };
     }
 }

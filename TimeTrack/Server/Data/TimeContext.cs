@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 
 namespace TimeTrack.Server.Data
 {
@@ -25,7 +24,7 @@ namespace TimeTrack.Server.Data
         }
 
         public DbSet<Assessment> Assessments { get; set; }
-        public DbSet<Shared.Models.Client> Clients { get; set; }
+        public DbSet<Models.Client> Clients { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -41,7 +40,7 @@ namespace TimeTrack.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Shared.Models.Client>().HasMany(c => c.Disabilities).WithMany(c => c.DisabledClients);
+            modelBuilder.Entity<Models.Client>().HasMany(c => c.Disabilities).WithMany(c => c.DisabledClients);
             modelBuilder.Entity<Category>().HasMany(c => c.RaceClients).WithOne(c => c.Race).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Category>().HasMany(c => c.GenderedClients).WithOne(c => c.Gender).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Category>().HasMany(c => c.SettingClients).WithOne(c => c.Setting).OnDelete(DeleteBehavior.Restrict);

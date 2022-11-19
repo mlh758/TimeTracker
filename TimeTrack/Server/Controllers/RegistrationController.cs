@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 using TimeTrack.Server.Repositories;
 using VM = TimeTrack.Shared.ViewModels;
 

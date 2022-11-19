@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TimeTrack.Shared.Models
+namespace TimeTrack.Server.Models
 {
     /*
      * I considered implementing this based on the iCal spec:

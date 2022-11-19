@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace TimeTrack.Shared.Models
+namespace TimeTrack.Server.Models
 {
     public class User
     {

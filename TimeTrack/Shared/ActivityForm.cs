@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TimeTrack.Shared.Models;
+using TimeTrack.Shared.ViewModels;
 
 
 namespace TimeTrack.Shared

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TimeTrack.Server.Data;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using VM = TimeTrack.Shared.ViewModels;
@@ -68,17 +68,17 @@ namespace TimeTrack.Server.Controllers
             {
                 Start = body.Start!.Value!,
                 Duration = body.Duration!.Value,
-                ClientId = body.Client.Id,
-                Schedule = body.Schedule,
+                ClientId = body.ClientId!.Value,
                 Assessments = assessments.ToList(),
             };
-            if (newActivity.Schedule is null)
+            if (body.Schedule is null)
             {
                 newActivity = await _activityRepo.Create(newActivity);
                 return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, newActivity);
 
             } else
             {
+                newActivity.Schedule = body.Schedule;
                 await _activityRepo.CreateScheduled(newActivity);
                 return CreatedAtAction(nameof(GetActivities), null);
             }

@@ -4,7 +4,7 @@ using System.Security.Claims;
 using TimeTrack.Server.Repositories;
 using TimeTrack.Shared;
 using TimeTrack.Shared.ViewModels;
-using M = TimeTrack.Shared.Models;
+using M = TimeTrack.Server.Models;
 using VM = TimeTrack.Shared.ViewModels;
 
 namespace TimeTrack.Server.Controllers
@@ -26,7 +26,7 @@ namespace TimeTrack.Server.Controllers
             var userId = HttpContext.User.FindFirstValue("UserID");
             var client = await _clientRepository.Find(Convert.ToInt32(userId), id);
 
-            if (client == null) 
+            if (client is null) 
             {
                 return NotFound();
             }

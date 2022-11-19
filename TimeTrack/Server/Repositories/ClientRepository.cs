@@ -1,7 +1,8 @@
 ﻿using TimeTrack.Server.Data;
-using M = TimeTrack.Shared.Models;
+using M = TimeTrack.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using TimeTrack.Shared;
+using TimeTrack.Shared.Enums;
 
 
 namespace TimeTrack.Server.Repositories
@@ -37,7 +38,7 @@ namespace TimeTrack.Server.Repositories
             if (clientData.Disabilities is not null)
             {
                 var disabilityIds = clientData.Disabilities.Select(d => d.Id).ToList();
-                newClient.Disabilities = await _context.Categories.Where(c => c.Type == M.CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
+                newClient.Disabilities = await _context.Categories.Where(c => c.Type == CategoryType.Disability && disabilityIds.Contains(c.Id)).ToListAsync();
             }
             _context.Add(newClient);
             await _context.SaveChangesAsync();
@@ -59,7 +60,7 @@ namespace TimeTrack.Server.Repositories
             client.RaceId = clientData.Race!.Id;
 
             var disabilities = clientData.Disabilities!.Select(d => d.Id).ToList();
-            client.Disabilities = await _context.Categories.Where(c => c.Type == M.CategoryType.Disability && disabilities.Contains(c.Id)).ToListAsync();
+            client.Disabilities = await _context.Categories.Where(c => c.Type == CategoryType.Disability && disabilities.Contains(c.Id)).ToListAsync();
 
             await _context.SaveChangesAsync();
             return client;

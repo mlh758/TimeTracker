@@ -1,12 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using TimeTrack.Server.Repositories;
-using M = TimeTrack.Shared.Models;
+using M = TimeTrack.Server.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using TimeTrack.Shared.ViewModels;
 using TimeTrack.Shared;
 using Microsoft.AspNetCore.Mvc;
+using TimeTrack.Shared.Enums;
 
 namespace TimeTrack.Server.Controllers.Tests
 {
@@ -26,7 +27,7 @@ namespace TimeTrack.Server.Controllers.Tests
 
         private static M.Client BuildClient(string abbreviation = "HELLO")
         {
-            var category = new M.Category("CAT", M.CategoryType.Race) { Id = 123 };
+            var category = new M.Category("CAT", CategoryType.Race) { Id = 123 };
             return new M.Client(abbreviation)
             {
                 Disabilities = new List<M.Category>(),
@@ -83,7 +84,7 @@ namespace TimeTrack.Server.Controllers.Tests
         [TestMethod()]
         public void CreateClientTest_ValidData()
         {
-            var category = new Category("CAT") { Id = 123, Type = M.CategoryType.Race };
+            var category = new Category("CAT") { Id = 123, Type = CategoryType.Race };
             var form = new NewClientForm()
             {
                 Abbreviation = "HI",

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TimeTrack.Server.Data;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using VM = TimeTrack.Shared.ViewModels;
 

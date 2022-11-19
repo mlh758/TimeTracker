@@ -1,5 +1,5 @@
 ﻿namespace TimeTrack.Server.Repositories;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
 using TimeTrack.Server.Data;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using TimeTrack.Shared.Models;
+using TimeTrack.Server.Models;
+using TimeTrack.Shared.Enums;
 
 namespace TimeTrack.Server.Data.Seed
 {

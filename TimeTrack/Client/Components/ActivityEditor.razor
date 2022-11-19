@@ -1,5 +1,5 @@
 ﻿@using TimeTrack.Shared
-@using TimeTrack.Shared.Models
+@using TimeTrack.Shared.ViewModels
 @using TimeTrack.Client.Components
 @inject HttpClient Http
 
@@ -79,10 +79,8 @@
 
     private async void OnAssessmentChosen(Assessment chosen)
     {
-        if (chosen is not null)
-        {
-            Model.Assessments.Add(chosen);
-        }
+
+        Model.Assessments.Add(chosen);
         if (assessmentSearch is not null)
         {
             await assessmentSearch.Clear();
