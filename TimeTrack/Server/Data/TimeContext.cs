@@ -1,11 +1,13 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using TimeTrack.Server.Models;
 
+
 namespace TimeTrack.Server.Data
 {
-    public partial class TimeContext : DbContext
+    public partial class TimeContext : IdentityDbContext<User>
     {
         private readonly string _connectionString;
 
@@ -26,7 +28,6 @@ namespace TimeTrack.Server.Data
         public DbSet<Assessment> Assessments { get; set; }
         public DbSet<Models.Client> Clients { get; set; }
         public DbSet<Activity> Activities { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
 
@@ -40,6 +41,8 @@ namespace TimeTrack.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Models.Client>().HasMany(c => c.Disabilities).WithMany(c => c.DisabledClients);
             modelBuilder.Entity<Category>().HasMany(c => c.RaceClients).WithOne(c => c.Race).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Category>().HasMany(c => c.GenderedClients).WithOne(c => c.Gender).OnDelete(DeleteBehavior.Restrict);

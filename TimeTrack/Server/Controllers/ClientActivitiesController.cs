@@ -18,17 +18,19 @@ namespace TimeTrack.Server.Controllers
     {
         private readonly IActivityRepository _activityRepo;
         private readonly IAssessmentRepository _assessmentRepo;
-        public ClientActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository)
+        private readonly IClientRepository _clientRepo;
+        public ClientActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository, IClientRepository clientRepository)
         {
             _activityRepo = activityRepo;
             _assessmentRepo = assessmentRepository;
+            _clientRepo = clientRepository;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Activity>> GetClientActivity(int id)
         {
-            var userId = HttpContext.User.FindFirstValue("UserID");
-            var activity = await _activityRepo.Find(Convert.ToInt32(userId), id);
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var activity = await _activityRepo.Find(userId, id);
 
             if (activity == null)
             {
@@ -41,7 +43,7 @@ namespace TimeTrack.Server.Controllers
         [HttpGet]
         public async Task<ICollection<VM.ClientActivity>> GetActivities(DateTime within)
         {
-            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var startAt = new DateTime(within.Year, within.Month, 1);
             var endAt = startAt.AddDays(DateTime.DaysInMonth(startAt.Year, startAt.Month));
             var activities = await _activityRepo.ForUserWithin(userId, startAt, endAt);
@@ -62,7 +64,12 @@ namespace TimeTrack.Server.Controllers
             {
                 return BadRequest();
             }
-            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var client = await _clientRepo.Find(userId, body.ClientId!.Value);
+            if (client is null)
+            {
+                return NotFound();
+            }
             var assessments = await _assessmentRepo.FindById(body.Assessments.Select(el => el.Id));
             var newActivity = new Activity
             {
@@ -76,7 +83,8 @@ namespace TimeTrack.Server.Controllers
                 newActivity = await _activityRepo.Create(newActivity);
                 return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, newActivity);
 
-            } else
+            }
+            else
             {
                 newActivity.Schedule = body.Schedule;
                 await _activityRepo.CreateScheduled(newActivity);

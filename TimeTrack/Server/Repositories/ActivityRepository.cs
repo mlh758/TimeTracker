@@ -10,8 +10,8 @@ namespace TimeTrack.Server.Repositories
 {
     public interface IActivityRepository
     {
-        public Task<List<Activity>> ForUserWithin(int userId, DateTime start, DateTime end);
-        public Task<Activity?> Find(int userId, int Id);
+        public Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end);
+        public Task<Activity?> Find(string userId, int Id);
         public Task<Activity> Create(Activity activity);
 
         public Task<int> CreateScheduled(Activity activity);
@@ -33,12 +33,12 @@ namespace TimeTrack.Server.Repositories
         }
 
 
-        public async Task<Activity?> Find(int userId, int Id)
+        public async Task<Activity?> Find(string userId, int Id)
         {
             return await userActivity(userId).Where(a => a.Id == Id).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Activity>> ForUserWithin(int userId, DateTime start, DateTime end)
+        public async Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end)
         {
             var activity = userActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client);
             return await activity.ToListAsync();
@@ -64,7 +64,7 @@ namespace TimeTrack.Server.Repositories
             return count;
         }
 
-        private IQueryable<Activity> userActivity(int userId)
+        private IQueryable<Activity> userActivity(string userId)
         {
             return from u in _context.Users
                    join cl in _context.Clients on u.Id equals cl.UserId

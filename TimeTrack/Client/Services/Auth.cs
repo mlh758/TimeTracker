@@ -22,10 +22,12 @@ namespace TimeTrack.Client.Services
             result.EnsureSuccessStatusCode();
         }
 
-        public async Task Register(RegistrationForm form)
+        public async Task<User> Register(RegistrationForm form)
         {
             var result = await _httpClient.PostAsJsonAsync("registration", form);
             result.EnsureSuccessStatusCode();
+
+            return await result.Content.ReadFromJsonAsync<User>();
         }
 
         public Task<User> CurrentUser()

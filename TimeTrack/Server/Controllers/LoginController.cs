@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TimeTrack.Server.Repositories;
 using VM = TimeTrack.Shared.ViewModels;
+using M = TimeTrack.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -16,51 +18,37 @@ namespace TimeTrack.Server.Controllers
             public string Email { get; init; }
             public string Password { get; init; }
         }
-        private readonly IUserRepository _userRepository;
+        private readonly SignInManager<M.User> _signIn;
 
-        public LoginController(IUserRepository userRepository)
+        public LoginController(SignInManager<M.User> signInManager)
         {
-            _userRepository = userRepository;
+            _signIn = signInManager;
         }
         [HttpPost]
         public async Task<ActionResult<VM.User>> Login(LoginRequest request)
         {
-            var user = await _userRepository.Login(request.Email, request.Password);
-            if (user is null)
+            var user = await _signIn.UserManager.FindByEmailAsync(request.Email);
+            var result = await _signIn.PasswordSignInAsync(user, request.Password, true, true);
+            if (result.Succeeded)
             {
-                return Unauthorized();
+                return Ok(new VM.User()
+                {
+                    Name = user.Name,
+                    Email = user.Email,
+                    Id = user.Id,
+                });
             }
-            var claims = new List<Claim>
+            else
             {
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim("UserID", user.Id.ToString()),
-            };
-            var claimsIdentity = new ClaimsIdentity(
-            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                return Forbid();
+            }
 
-            var authProperties = new AuthenticationProperties
-            {
-                AllowRefresh = true,
-                IsPersistent = true,
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-            return Ok(new VM.User()
-            {
-                Name = user.Name,
-                Email = user.Email,
-                Id = user.Id,
-            });
         }
 
         [HttpDelete]
         public async Task<ActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
+            await _signIn.SignOutAsync();
             return Ok();
         }
 
@@ -76,7 +64,7 @@ namespace TimeTrack.Server.Controllers
             {
                 Name = user.FindFirstValue(ClaimTypes.Name),
                 Email = user.FindFirstValue(ClaimTypes.Email),
-                Id = Convert.ToInt32(user.FindFirstValue("UserID")),
+                Id = user.FindFirstValue(ClaimTypes.NameIdentifier),
             };
             if (string.IsNullOrEmpty(viewUser.Email))
             {

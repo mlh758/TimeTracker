@@ -16,7 +16,7 @@ namespace TimeTrack.Server.Controllers.Tests
     {
         private static ClaimsPrincipal UserContext()
         {
-            return new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim("UserID", "1") }));
+            return new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.NameIdentifier, "user") }));
         }
         private static ClientsController Controller(IClientRepository r)
         {
@@ -37,6 +37,7 @@ namespace TimeTrack.Server.Controllers.Tests
                 Setting = category,
                 SexualOrientation = category,
                 Id = 123,
+                UserId = "1"
             };
         }
         [TestMethod()]
@@ -44,10 +45,11 @@ namespace TimeTrack.Server.Controllers.Tests
         {
             var mock = new Mock<IClientRepository>();
 
-            mock.Setup(repo => repo.Find(1, 1)).ReturnsAsync(BuildClient());
+            mock.Setup(repo => repo.Find("user", 1)).ReturnsAsync(BuildClient());
             var controller = Controller(mock.Object);
             var task = controller.GetClient(1);
             task.Wait();
+            Assert.IsNotNull(task.Result.Value);
             Assert.AreEqual(task.Result.Value.Abbreviation, "HELLO");
         }
 
@@ -56,7 +58,7 @@ namespace TimeTrack.Server.Controllers.Tests
         {
             var mock = new Mock<IClientRepository>();
 
-            mock.Setup(repo => repo.All(1)).ReturnsAsync(new List<M.Client> { BuildClient("FIRST"), BuildClient("SECOND") });
+            mock.Setup(repo => repo.All("user")).ReturnsAsync(new List<M.Client> { BuildClient("FIRST"), BuildClient("SECOND") });
             var controller = Controller(mock.Object);
             var task = controller.GetClients();
             task.Wait();
@@ -66,7 +68,7 @@ namespace TimeTrack.Server.Controllers.Tests
         private static ClientsController SetupCreate(NewClientForm with)
         {
             var mock = new Mock<IClientRepository>();
-            mock.Setup(repo => repo.Create(1, with)).ReturnsAsync(BuildClient("FIRST"));
+            mock.Setup(repo => repo.Create("user", with)).ReturnsAsync(BuildClient("FIRST"));
             return Controller(mock.Object);
         }
 

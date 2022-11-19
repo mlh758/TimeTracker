@@ -2,6 +2,7 @@
 using TimeTrack.Server.Models;
 using TimeTrack.Server.Repositories;
 using VM = TimeTrack.Shared.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -9,28 +10,40 @@ namespace TimeTrack.Server.Controllers
     [ApiController]
     public class RegistrationController : Controller
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public RegistrationController(IUserRepository userRepository)
+        public RegistrationController(UserManager<User> userManager,
+            SignInManager<User> signInManager)
         {
-            _userRepository = userRepository;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         [HttpPost]
         public async Task<ActionResult<VM.User>> Create(Shared.RegistrationForm form)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || form.Email is null)
             {
                 return BadRequest(ModelState);
             }
-            var user = new User(form.Name!, form.Email!, form.Password!);
-            var savedUser = await _userRepository.Create(user);
-            return Ok(new VM.User()
+            var user = new User() { Name = form.Name!, UserName = form.Email, Email = form.Email };
+            var result = await _userManager.CreateAsync(user, form.Password);
+            if (result.Succeeded)
             {
-                Name = savedUser.Name,
-                Email = savedUser.Email,
-                Id = savedUser.Id,
-            });
+                await _signInManager.SignInAsync(user, false);
+                return Ok(new VM.User()
+                {
+                    Name = user.Name,
+                    Email = user.Email,
+                    Id = user.Id,
+                });
+            }
+            else
+            {
+                return UnprocessableEntity(result);
+            }
+
         }
     }
 }

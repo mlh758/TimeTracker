@@ -20,7 +20,7 @@ namespace TimeTrack.Server.Models
         public Category? Gender { get; set; }
         public List<Category>? Disabilities { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User? User { get; set; }
 
         public List<Activity>? Activities { get; set; }

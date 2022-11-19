@@ -9,11 +9,11 @@ namespace TimeTrack.Server.Repositories
 {
     public interface IClientRepository
     {
-        public Task<M.Client?> Find(int userId, int clientId);
-        public Task<List<M.Client>> All(int userId);
-        public Task<M.Client> Create(int userId, NewClientForm form);
-        public Task<M.Client?> Update(int userId, int clientId, NewClientForm form);
-        public Task Destroy(int userId, int clientId);
+        public Task<M.Client?> Find(string userId, int clientId);
+        public Task<List<M.Client>> All(string userId);
+        public Task<M.Client> Create(string userId, NewClientForm form);
+        public Task<M.Client?> Update(string userId, int clientId, NewClientForm form);
+        public Task Destroy(string userId, int clientId);
     }
     public class ClientRepository : IClientRepository
     {
@@ -24,7 +24,7 @@ namespace TimeTrack.Server.Repositories
             _context = context;
         }
 
-        public async Task<M.Client> Create(int userId, NewClientForm clientData)
+        public async Task<M.Client> Create(string userId, NewClientForm clientData)
         {
             var newClient = new M.Client(clientData.Abbreviation!)
             {
@@ -45,7 +45,7 @@ namespace TimeTrack.Server.Repositories
             return newClient;
         }
 
-        public async Task<M.Client?> Update(int userId, int clientId, NewClientForm clientData)
+        public async Task<M.Client?> Update(string userId, int clientId, NewClientForm clientData)
         {
             var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
             if (client is null)
@@ -67,7 +67,7 @@ namespace TimeTrack.Server.Repositories
 
         }
 
-        public async Task<M.Client?> Find(int userId, int clientId)
+        public async Task<M.Client?> Find(string userId, int clientId)
         {
             var client = await _context
             .Clients
@@ -87,12 +87,12 @@ namespace TimeTrack.Server.Repositories
             return client;
         }
 
-        public async Task<List<M.Client>> All(int userId)
+        public async Task<List<M.Client>> All(string userId)
         {
             return await _context.Clients.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        async Task IClientRepository.Destroy(int userId, int clientId)
+        async Task IClientRepository.Destroy(string userId, int clientId)
         {
             var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
             if (client is not null)

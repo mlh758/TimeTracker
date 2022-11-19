@@ -6,7 +6,7 @@ namespace TimeTrack.Client.Services
     {
         public Task Login(LoginForm model);
         public Task Logout();
-        public Task Register(RegistrationForm model);
+        public Task<User> Register(RegistrationForm model);
         public Task<User> CurrentUser();
     }
 }

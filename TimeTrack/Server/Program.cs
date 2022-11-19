@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using TimeTrack.Server.Repositories;
+using TimeTrack.Server.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace TimeTrack
 {
@@ -18,7 +20,8 @@ namespace TimeTrack
             var dbConnectionString = builder.Configuration.GetConnectionString("TimeTrack");
             builder.Services.AddDbContext<Server.Data.TimeContext>(options =>
                 options.UseSqlServer(dbConnectionString));
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<Server.Data.TimeContext>();
             builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
             builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
@@ -30,6 +33,14 @@ namespace TimeTrack
                     options.SlidingExpiration = true;
                     options.AccessDeniedPath = "/Forbidden/";
                 });
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequiredLength = 12;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+                options.User.RequireUniqueEmail = true;
+            });
 
             var app = builder.Build();
 

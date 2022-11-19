@@ -23,10 +23,10 @@ namespace TimeTrack.Server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<VM.Client>> GetClient(int id)
         {
-            var userId = HttpContext.User.FindFirstValue("UserID");
-            var client = await _clientRepository.Find(Convert.ToInt32(userId), id);
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var client = await _clientRepository.Find(userId, id);
 
-            if (client is null) 
+            if (client is null)
             {
                 return NotFound();
             }
@@ -52,8 +52,8 @@ namespace TimeTrack.Server.Controllers
         [HttpGet]
         public async Task<ICollection<SummaryClient>> GetClients()
         {
-            var userId = HttpContext.User.FindFirstValue("UserID");
-            var clients = await _clientRepository.All(Convert.ToInt32(userId));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var clients = await _clientRepository.All(userId);
             return clients.Select(c => new SummaryClient() { Abbreviation = c.Abbreviation, Id = c.Id }).ToList();
         }
 
@@ -64,8 +64,7 @@ namespace TimeTrack.Server.Controllers
             {
                 return BadRequest(ModelState);
             }
-            // ensures the client is created against the current session
-            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var newClient = await _clientRepository.Create(userId, clientData);
             return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, new SummaryClient() { Id = newClient.Id, Abbreviation = newClient.Abbreviation });
         }
@@ -77,8 +76,7 @@ namespace TimeTrack.Server.Controllers
             {
                 return BadRequest(ModelState);
             }
-            // ensures the client is created against the current session
-            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var updatedClient = await _clientRepository.Update(userId, id, clientData);
             if (updatedClient is null)
             {
@@ -90,7 +88,7 @@ namespace TimeTrack.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteClient(int id)
         {
-            var userId = Convert.ToInt32(HttpContext.User.FindFirstValue("UserID"));
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             await _clientRepository.Destroy(userId, id);
             return Ok();
         }
