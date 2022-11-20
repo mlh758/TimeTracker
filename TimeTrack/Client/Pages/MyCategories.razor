@@ -1,0 +1,50 @@
+﻿@page "/categories"
+@using TimeTrack.Shared.ViewModels
+@inject HttpClient Http
+
+<PageTitle>My Categories</PageTitle>
+
+<MudText Typo="Typo.h1">Custom Categories</MudText>
+@if (deleteError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => deleteError = false)">Unable to delete that category. Ensure it is not being used.</MudAlert>
+}
+@if (categories is not null)
+{
+    <MudTable Items="@categories" Hover Striped>
+        <HeaderContent>
+            <MudTh>Display</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh />
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Display">@context.Name</MudTd>
+            <MudTd DataLabel="Type">@context.Type</MudTd>
+            <MudTd><MudIconButton OnClick="@(() => DeleteCategory(@context.Id))" Color="Color.Error" Icon="@Icons.Material.Filled.Delete" aria-label="delete"></MudIconButton></MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+
+@code {
+    private Category[]? categories;
+    private bool deleteError = false;
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Http.GetFromJsonAsync<Category[]>("/api/customcategories");
+    }
+
+    private async Task DeleteCategory(long id)
+    {
+        deleteError = false;
+        var result = await Http.DeleteAsync($"/api/customcategories/{id}");
+        if (!result.IsSuccessStatusCode)
+        {
+            deleteError = true;
+        } else
+        {
+            categories = categories!.Where(c => c.Id != id).ToArray();
+        }
+    }
+
+}

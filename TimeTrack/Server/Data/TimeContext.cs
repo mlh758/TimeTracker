@@ -29,6 +29,7 @@ namespace TimeTrack.Server.Data
         public DbSet<Models.Client> Clients { get; set; }
         public DbSet<Activity> Activities { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CustomCategory> CustomCategories { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

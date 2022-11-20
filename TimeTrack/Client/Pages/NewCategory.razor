@@ -1,0 +1,48 @@
+﻿@page "/categories/new"
+@using TimeTrack.Shared
+@using TimeTrack.Shared.Enums
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>New Category</PageTitle>
+
+<MudText Typo="Typo.h1">New Category</MudText>
+@if (unableToSave)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => unableToSave = false)">Unable to save your category. Please try again later.</MudAlert>
+}
+<EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+    <MudStack>
+        <DataAnnotationsValidator />
+        <MudTextField Label="Name" @bind-Value="Model.Name" />
+        <MudSelect T="CategoryType" Label="Categorization" @bind-Value="Model.Type">
+            <MudSelectItem Value="CategoryType.Age">Age</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Gender">Gender</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Race">Race</MudSelectItem>
+            <MudSelectItem Value="CategoryType.SexualOrientation">Sexual Orientation</MudSelectItem>
+            <MudSelectItem Value="CategoryType.TreatmentSetting">Treatment Setting</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Disability">Disability</MudSelectItem>
+        </MudSelect>
+        <ValidationSummary />
+    </MudStack>
+    <div class="spaceTop">
+        <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled">Submit</MudButton>
+    </div>
+</EditForm>
+
+
+@code {
+    private CustomCategoryForm Model = new();
+    private bool unableToSave = false;
+    async Task OnValidSubmit()
+    {
+        var response = await Http.PostAsync("/api/customcategories", JsonContent.Create(Model));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/categories");
+        } else
+        {
+            unableToSave = true;
+        }
+    }
+}

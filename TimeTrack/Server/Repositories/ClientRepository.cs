@@ -15,6 +15,11 @@ namespace TimeTrack.Server.Repositories
         public Task<M.Client?> Update(string userId, int clientId, NewClientForm form);
         public Task Destroy(string userId, int clientId);
     }
+    /*
+     * There's a lot of non-null assert and casting here. It should be safe because
+     * we validate on model state and the key for category is a 32 bit int. There's
+     * probably a more type safe way to handle all this though.
+     */
     public class ClientRepository : IClientRepository
     {
 
@@ -29,11 +34,11 @@ namespace TimeTrack.Server.Repositories
             var newClient = new M.Client(clientData.Abbreviation!)
             {
                 UserId = userId,
-                AgeId = clientData.Age!.Id,
-                SettingId = clientData.Setting!.Id,
-                SexualOrientationId = clientData.SexualOrientation!.Id,
-                GenderId = clientData.Gender!.Id,
-                RaceId = clientData.Race!.Id
+                AgeId = (int)clientData.Age!.Id,
+                SettingId = (int)clientData.Setting!.Id,
+                SexualOrientationId = (int)clientData.SexualOrientation!.Id,
+                GenderId = (int)clientData.Gender!.Id,
+                RaceId = (int)clientData.Race!.Id
             };
             if (clientData.Disabilities is not null)
             {
@@ -53,11 +58,11 @@ namespace TimeTrack.Server.Repositories
                 return null;
             }
             await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
-            client.AgeId = clientData.Age!.Id;
-            client.SettingId = clientData.Setting!.Id;
-            client.SexualOrientationId = clientData.SexualOrientation!.Id;
-            client.GenderId = clientData.Gender!.Id;
-            client.RaceId = clientData.Race!.Id;
+            client.AgeId = (int)clientData.Age!.Id;
+            client.SettingId = (int)clientData.Setting!.Id;
+            client.SexualOrientationId = (int)clientData.SexualOrientation!.Id;
+            client.GenderId = (int)clientData.Gender!.Id;
+            client.RaceId = (int)clientData.Race!.Id;
 
             var disabilities = clientData.Disabilities!.Select(d => d.Id).ToList();
             client.Disabilities = await _context.Categories.Where(c => c.Type == CategoryType.Disability && disabilities.Contains(c.Id)).ToListAsync();

@@ -4,7 +4,7 @@ namespace TimeTrack.Shared.ViewModels
 {
     public class Category
     {
-        public int Id { get; init; }
+        public long Id { get; init; }
         public string Name { get; init; }
         public CategoryType Type { get; init; }
         public override string ToString()
@@ -32,7 +32,7 @@ namespace TimeTrack.Shared.ViewModels
 
         public override int GetHashCode()
         {
-            return Id;
+            return Id.GetHashCode();
         }
     }
 }

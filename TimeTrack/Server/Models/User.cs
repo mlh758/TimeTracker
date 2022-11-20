@@ -7,6 +7,7 @@ namespace TimeTrack.Server.Models
     public class User : IdentityUser
     {
         public string Name { get; set; } = string.Empty;
+        public ICollection<CustomCategory>? CustomCategories { get; set; }
 
     }
 }
