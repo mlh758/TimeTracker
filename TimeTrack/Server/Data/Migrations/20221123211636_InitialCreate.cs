@@ -199,6 +199,27 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomCategories",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CustomCategories_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Clients",
                 columns: table => new
                 {
@@ -210,6 +231,11 @@ namespace TimeTrack.Server.Data.Migrations
                     SexualOrientationId = table.Column<int>(type: "int", nullable: false),
                     RaceId = table.Column<int>(type: "int", nullable: false),
                     GenderId = table.Column<int>(type: "int", nullable: false),
+                    CustomAgeId = table.Column<long>(type: "bigint", nullable: true),
+                    CustomSettingId = table.Column<long>(type: "bigint", nullable: true),
+                    CustomSexualOrientationId = table.Column<long>(type: "bigint", nullable: true),
+                    CustomRaceId = table.Column<long>(type: "bigint", nullable: true),
+                    CustomGenderId = table.Column<long>(type: "bigint", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -249,6 +275,36 @@ namespace TimeTrack.Server.Data.Migrations
                         name: "FK_Clients_Categories_SexualOrientationId",
                         column: x => x.SexualOrientationId,
                         principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_CustomCategories_CustomAgeId",
+                        column: x => x.CustomAgeId,
+                        principalTable: "CustomCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_CustomCategories_CustomGenderId",
+                        column: x => x.CustomGenderId,
+                        principalTable: "CustomCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_CustomCategories_CustomRaceId",
+                        column: x => x.CustomRaceId,
+                        principalTable: "CustomCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_CustomCategories_CustomSettingId",
+                        column: x => x.CustomSettingId,
+                        principalTable: "CustomCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_CustomCategories_CustomSexualOrientationId",
+                        column: x => x.CustomSexualOrientationId,
+                        principalTable: "CustomCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -302,6 +358,30 @@ namespace TimeTrack.Server.Data.Migrations
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientCustomDisability",
+                columns: table => new
+                {
+                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    DisabilityId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientCustomDisability", x => new { x.DisabilityId, x.ClientId });
+                    table.ForeignKey(
+                        name: "FK_ClientCustomDisability_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClientCustomDisability_CustomCategories_DisabilityId",
+                        column: x => x.DisabilityId,
+                        principalTable: "CustomCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -388,9 +468,39 @@ namespace TimeTrack.Server.Data.Migrations
                 column: "DisabledClientsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClientCustomDisability_ClientId",
+                table: "ClientCustomDisability",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Clients_AgeId",
                 table: "Clients",
                 column: "AgeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_CustomAgeId",
+                table: "Clients",
+                column: "CustomAgeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_CustomGenderId",
+                table: "Clients",
+                column: "CustomGenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_CustomRaceId",
+                table: "Clients",
+                column: "CustomRaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_CustomSettingId",
+                table: "Clients",
+                column: "CustomSettingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_CustomSexualOrientationId",
+                table: "Clients",
+                column: "CustomSexualOrientationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_GenderId",
@@ -415,6 +525,11 @@ namespace TimeTrack.Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_UserId",
                 table: "Clients",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomCategories_UserId",
+                table: "CustomCategories",
                 column: "UserId");
         }
 
@@ -442,6 +557,9 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "CategoryClient");
 
             migrationBuilder.DropTable(
+                name: "ClientCustomDisability");
+
+            migrationBuilder.DropTable(
                 name: "Activities");
 
             migrationBuilder.DropTable(
@@ -457,10 +575,13 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "Schedules");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "CustomCategories");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

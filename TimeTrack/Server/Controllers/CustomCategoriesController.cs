@@ -25,7 +25,7 @@ namespace TimeTrack.Server.Controllers
         public async Task<ICollection<VM.Category>> GetCategories()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return await _context.CustomCategories.Where(c => c.UserId == userId).OrderBy(c => c.Name).Select(c => new VM.Category(c.Name) { Id = c.Id, Type = c.Type }).ToListAsync();
+            return await _context.CustomCategories.Where(c => c.UserId == userId).OrderBy(c => c.Name).Select(c => new VM.Category(c.Name) { Id = c.Id, Type = c.Type, IsCustom = true }).ToListAsync();
         }
 
         [HttpPost]

@@ -7,6 +7,7 @@ namespace TimeTrack.Shared.ViewModels
         public long Id { get; init; }
         public string Name { get; init; }
         public CategoryType Type { get; init; }
+        public bool IsCustom { get; init; } = false;
         public override string ToString()
         {
             return Name;

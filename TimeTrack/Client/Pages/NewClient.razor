@@ -8,16 +8,25 @@
 
 <MudText Typo="Typo.h1">New Client</MudText>
 
+@if (saveError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => saveError = false)">Unable to create the client, please try again.</MudAlert>
+}
+
 <ClientEditor Model="@model" OnSubmit="@OnValidSubmit"/>
 
 @code {
     NewClientForm model = new NewClientForm();
+    private bool saveError = false;
 
     async Task OnValidSubmit(NewClientForm form)
     {
         var response = await Http.PostAsync("/api/clients", JsonContent.Create(form));
         if (response.IsSuccessStatusCode) {
             NavigationManager.NavigateTo("/clients");
+        } else
+        {
+            saveError = true;
         }
     }
 }

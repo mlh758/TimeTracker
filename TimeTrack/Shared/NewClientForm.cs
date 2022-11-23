@@ -16,7 +16,7 @@ namespace TimeTrack.Shared
         public Category? SexualOrientation { get; set; }
         [Required]
         public Category? Gender { get; set; }
-        public IEnumerable<Category>? Disabilities { get; set; }
+        public IEnumerable<Category> Disabilities { get; set; } = Enumerable.Empty<Category>();
         [Required]
         public Category? Race { get; set; }
     }

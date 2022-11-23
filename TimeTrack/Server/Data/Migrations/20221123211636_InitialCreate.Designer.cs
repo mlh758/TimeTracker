@@ -12,7 +12,7 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    [Migration("20221119181820_InitialCreate")]
+    [Migration("20221123211636_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -271,6 +271,21 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<int>("AgeId")
                         .HasColumnType("int");
 
+                    b.Property<long?>("CustomAgeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CustomGenderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CustomRaceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CustomSettingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CustomSexualOrientationId")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("GenderId")
                         .HasColumnType("int");
 
@@ -291,6 +306,16 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("AgeId");
 
+                    b.HasIndex("CustomAgeId");
+
+                    b.HasIndex("CustomGenderId");
+
+                    b.HasIndex("CustomRaceId");
+
+                    b.HasIndex("CustomSettingId");
+
+                    b.HasIndex("CustomSexualOrientationId");
+
                     b.HasIndex("GenderId");
 
                     b.HasIndex("RaceId");
@@ -302,6 +327,47 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.ClientCustomDisability", b =>
+                {
+                    b.Property<long>("DisabilityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DisabilityId", "ClientId");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("ClientCustomDisability");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.CustomCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomCategories");
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Schedule", b =>
@@ -507,6 +573,31 @@ namespace TimeTrack.Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "CustomAge")
+                        .WithMany("AgedClients")
+                        .HasForeignKey("CustomAgeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "CustomGender")
+                        .WithMany("GenderedClients")
+                        .HasForeignKey("CustomGenderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "CustomRace")
+                        .WithMany("RaceClients")
+                        .HasForeignKey("CustomRaceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "CustomSetting")
+                        .WithMany("SettingClients")
+                        .HasForeignKey("CustomSettingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "CustomSexualOrientation")
+                        .WithMany("SexualOrientationClients")
+                        .HasForeignKey("CustomSexualOrientationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TimeTrack.Server.Models.Category", "Gender")
                         .WithMany("GenderedClients")
                         .HasForeignKey("GenderId")
@@ -539,6 +630,16 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.Navigation("Age");
 
+                    b.Navigation("CustomAge");
+
+                    b.Navigation("CustomGender");
+
+                    b.Navigation("CustomRace");
+
+                    b.Navigation("CustomSetting");
+
+                    b.Navigation("CustomSexualOrientation");
+
                     b.Navigation("Gender");
 
                     b.Navigation("Race");
@@ -546,6 +647,36 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Navigation("Setting");
 
                     b.Navigation("SexualOrientation");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.ClientCustomDisability", b =>
+                {
+                    b.HasOne("TimeTrack.Server.Models.Client", "Client")
+                        .WithMany("ClientCustomDisabilities")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TimeTrack.Server.Models.CustomCategory", "Disability")
+                        .WithMany("ClientCustomDisabilities")
+                        .HasForeignKey("DisabilityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Disability");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.CustomCategory", b =>
+                {
+                    b.HasOne("TimeTrack.Server.Models.User", "User")
+                        .WithMany("CustomCategories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -566,6 +697,28 @@ namespace TimeTrack.Server.Data.Migrations
             modelBuilder.Entity("TimeTrack.Server.Models.Client", b =>
                 {
                     b.Navigation("Activities");
+
+                    b.Navigation("ClientCustomDisabilities");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.CustomCategory", b =>
+                {
+                    b.Navigation("AgedClients");
+
+                    b.Navigation("ClientCustomDisabilities");
+
+                    b.Navigation("GenderedClients");
+
+                    b.Navigation("RaceClients");
+
+                    b.Navigation("SettingClients");
+
+                    b.Navigation("SexualOrientationClients");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.User", b =>
+                {
+                    b.Navigation("CustomCategories");
                 });
 #pragma warning restore 612, 618
         }

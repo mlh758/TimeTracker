@@ -34,17 +34,22 @@ namespace TimeTrack.Server.Controllers
             return MapToView(client);
         }
 
+        /*
+         * If a custom value is set, show that. It's possible the user just set Other/Uknown and didn't provide
+         * a custom value though so we still want to fall back to whatever is on the base Category column. Those are non-null
+         * so SOMETHING will be there.
+         */
         private VM.Client MapToView(M.Client client)
         {
             return new VM.Client()
             {
                 Abbreviation = client.Abbreviation,
-                Age = client.Age!,
-                Race = client.Race!,
-                Gender = client.Gender!,
-                Setting = client.Setting!,
-                SexualOrientation = client.SexualOrientation!,
-                Disabilities = client.Disabilities!.Select(d => (VM.Category)d).ToList(),
+                Age = client.CustomAge is null ? client.Age! : client.CustomAge,
+                Race = client.CustomRace is null ? client.Race! : client.CustomRace,
+                Gender = client.CustomGender is null ? client.Gender! : client.CustomGender,
+                Setting = client.CustomSetting is null ? client.Setting! : client.CustomSetting,
+                SexualOrientation = client.CustomSexualOrientation is null ? client.SexualOrientation! : client.CustomSexualOrientation,
+                Disabilities = client.CustomDisabilities!.Select(d => (VM.Category)d).Concat(client.Disabilities!.Select(d => (VM.Category)d)).ToList(),
             };
 
         }
