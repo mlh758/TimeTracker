@@ -32,6 +32,7 @@ namespace TimeTrack.Server.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<CustomCategory> CustomCategories { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<UserCredential> UserCredentials { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

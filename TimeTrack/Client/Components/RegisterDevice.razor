@@ -1,0 +1,44 @@
+﻿@inject HttpClient Http
+@inject IJSRuntime JS
+@inject ILogger<RegisterDevice> Logger
+@implements IAsyncDisposable
+<MudText Typo="Typo.h3">Register This Device</MudText>
+
+<MudButton Disabled="@(data is null)" OnClick="@HandleRegister">Register!</MudButton>
+@if (registerError)
+{
+    <MudAlert Severity="Severity.Warning" ShowCloseIcon CloseIconClicked="@(() => registerError = false)">The registration ceremony failed. You may try again if that wasn't intentional.</MudAlert>
+}
+
+@code {
+    private dynamic? data;
+    private IJSObjectReference module;
+    private bool registerError = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "./Components/RegisterDevice.razor.js");
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        data = await Http.GetFromJsonAsync<dynamic>("/api/authenticators/new");
+    }
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            var credential = await module.InvokeAsync<object>("createCredential", new object[] { data! });
+            var result = await Http.PostAsJsonAsync("/api/authenticators", credential);
+        } catch (JSException e)
+        {
+            Logger.LogError(e.Message);
+            Logger.LogError(e.StackTrace);
+            registerError = true;
+        }
+    }
+    public ValueTask DisposeAsync() => module.DisposeAsync();
+}

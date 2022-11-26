@@ -8,6 +8,7 @@ namespace TimeTrack.Server.Models
     {
         public string Name { get; set; } = string.Empty;
         public ICollection<CustomCategory>? CustomCategories { get; set; }
+        public ICollection<UserCredential>? Credentials { get; set; }
 
     }
 }

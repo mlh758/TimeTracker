@@ -32,6 +32,12 @@ namespace TimeTrack.Client.Services
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
+        public void SetUser(User user)
+        {
+            var authState = new AuthenticationState(BuildPrinciple(user));
+            NotifyAuthenticationStateChanged(Task.FromResult(authState));
+        }
+
         public async Task Register(RegistrationForm form)
         {
             var user = await _auth.Register(form);

@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using TimeTrack.Server.Repositories;
 using TimeTrack.Server.Models;
 using Microsoft.AspNetCore.Identity;
-
+using Fido2NetLib;
 namespace TimeTrack
 {
     public class Program
@@ -26,13 +25,12 @@ namespace TimeTrack
             builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
 
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
-                    options.SlidingExpiration = true;
-                    options.AccessDeniedPath = "/Forbidden/";
-                });
+            builder.Services.AddSession(opt =>
+            {
+                opt.Cookie.HttpOnly = true;
+                opt.Cookie.IsEssential = true;
+            });
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequiredLength = 12;
@@ -40,6 +38,12 @@ namespace TimeTrack
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
                 options.User.RequireUniqueEmail = true;
+            });
+            builder.Services.AddFido2(opt =>
+            {
+                opt.ServerDomain = "localhost";
+                opt.ServerName = "Time Tracker";
+                opt.Origins = new() { "https://localhost:7117" };
             });
 
             var app = builder.Build();
@@ -58,6 +62,7 @@ namespace TimeTrack
                 app.UseHsts();
             }
 
+            app.UseSession();
             app.UseHttpsRedirection();
 
             app.UseBlazorFrameworkFiles();

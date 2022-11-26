@@ -1,32 +1,113 @@
 ﻿@page "/login"
 @using System.ComponentModel.DataAnnotations;
+@using System.Web;
 @using TimeTrack.Client.Services;
 @using TimeTrack.Shared;
+@using TimeTrack.Shared.ViewModels;
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject AuthProvider Auth
+@inject ILogger<SignIn> Logger
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 
 <PageTitle>Login</PageTitle>
 
 <MudText Typo="Typo.h1">Login</MudText>
+@if (notFoundError)
+{
+    <MudAlert Severity="Severity.Warning" ShowCloseIcon CloseIconClicked="@(() => notFoundError = false)">No account found for this email. Do you need to <MudLink Href="/register">register?</MudLink></MudAlert>
+}
 
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
-    <MudTextField Label="Email" @bind-Value="model.Email" Required />
-    <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
-    <ValidationSummary />
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>
+    <MudTextField Label="Email" InputType="InputType.Email" @bind-Value="model.Email" Required />
+    @if (triedFido)
+    {
+        <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
+        <ValidationSummary />
+        <MudButton Disabled="@isLoading" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>
+    }
+    else
+    {
+        <MudButton Disabled="@isLoading" OnClick="@AttemptFidoLogin" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Button" Class="mt-2">Continue</MudButton>
+    }
 </EditForm>
 
 @code {
 
     LoginForm model = new LoginForm();
+    private bool triedFido = false;
+    private bool isLoading = false;
+    private bool notFoundError = false;
+    private IJSObjectReference module;
 
     async Task OnValidSubmit()
     {
-        await Auth.Login(model);
-        NavigationManager.NavigateTo("/");
+        isLoading = true;
+        try
+        {
+            await Auth.Login(model);
+            NavigationManager.NavigateTo("/");
+        } catch (HttpRequestException e)
+        {
+            switch(e.StatusCode)
+            {
+                case System.Net.HttpStatusCode.NotFound:
+                    notFoundError = true;
+                    break;
+            }
+        } finally
+        {
+            isLoading = false;
+        }
     }
+    /*
+    * When the user hits Continue, we check if they already have an authenticator registered for this device. If so, try
+    * to log them in with that instead of requiring a password. If it fails just fall back to password login.
+    */
+    private async Task AttemptFidoLogin()
+    {
+        try
+        {
+            isLoading = true;
+            var options = await Http.GetFromJsonAsync<object>($"/api/authenticators/?username={HttpUtility.UrlEncode(model.Email)}");
+            var credential = await module.InvokeAsync<object>("makeAssertion", new object[] { options });
+            if (credential is not null)
+            {
+                var result = await Http.PostAsJsonAsync("/api/login/fido", credential);
+                result.EnsureSuccessStatusCode();
+                var user = await result.Content.ReadFromJsonAsync<User>();
+                Auth.SetUser(user);
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        catch (JSException e)
+        {
+            Logger.LogError(e.Message);
+            Logger.LogError(e.StackTrace);
+        }
+        catch (HttpRequestException e)
+        {
+            Logger.LogError(e.Message);
+        }
+        finally
+        {
+            triedFido = true;
+            isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "./Pages/SignIn.razor.js");
+        }
+    }
+
+    public ValueTask DisposeAsync() => module.DisposeAsync();
 
 }
