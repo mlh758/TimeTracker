@@ -46,7 +46,7 @@ namespace TimeTrack.Server.Controllers
             }
             else
             {
-                return Forbid("Bearer");
+                return Forbid();
             }
 
         }

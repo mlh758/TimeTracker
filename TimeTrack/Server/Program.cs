@@ -4,6 +4,8 @@ using TimeTrack.Server.Repositories;
 using TimeTrack.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using Fido2NetLib;
+using Microsoft.Extensions.Options;
+
 namespace TimeTrack
 {
     public class Program
@@ -39,6 +41,21 @@ namespace TimeTrack
                 options.Lockout.AllowedForNewUsers = true;
                 options.User.RequireUniqueEmail = true;
             });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                };
+                options.Events.OnRedirectToAccessDenied = context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return Task.CompletedTask;
+                };
+            });
+
             builder.Services.AddFido2(opt =>
             {
                 opt.ServerDomain = "localhost";
