@@ -16,7 +16,7 @@
     }
     else
     {
-        <MudAutocomplete Required T="Client" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Abbreviation)" Clearable ResetValueOnEmptyText />
+        <MudAutocomplete Required T="ActivityOwner" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
         <MudAutocomplete T="Assessment"
                      @ref="assessmentSearch"
                      Label="Choose Assessments"
@@ -57,7 +57,7 @@
     [Parameter]
     public EventCallback<ActivityForm> OnSubmit { get; set; }
 
-    private Client[]? clients;
+    private ActivityOwner[]? clients;
     private Assessment[]? assessments;
     private bool loading = true;
     private MudAutocomplete<Assessment>? assessmentSearch;
@@ -88,12 +88,12 @@
         }
     }
 
-    private async Task<IEnumerable<Client>> SearchClients(string text)
+    private async Task<IEnumerable<ActivityOwner>> SearchClients(string text)
     {
         await Task.Delay(0); // forcing this to be async I guess
         if (clients is null)
         {
-            return new List<Client>();
+            return new List<ActivityOwner>();
         }
 
         if (String.IsNullOrEmpty(text))
@@ -101,7 +101,7 @@
             return clients;
         }
 
-        return clients.Where(e => e.Abbreviation.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+        return clients.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
@@ -127,7 +127,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var clientsTask = Http.GetFromJsonAsync<Client[]>("/api/Clients");
+        var clientsTask = Http.GetFromJsonAsync<ActivityOwner[]>("/api/Clients");
         assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
         clients = await clientsTask;
         loading = false;

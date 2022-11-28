@@ -14,27 +14,15 @@ namespace TimeTrack.Shared
 
         public Schedule? Schedule { get; set; }
 
-        public int? ClientId;
-
-        private Client? _client;
-
         [Required]
         public HashSet<Assessment> Assessments { get; set; }
 
 
         [Required]
-        public Client? Client
-        {
-            get
-            {
-                return _client;
-            }
-            set
-            {
-                _client = value;
-                ClientId = value?.Id;
-            }
-        }
+        public ActivityOwner? Client { get; set; }
+
+        // TODO: Wire this up and require groups
+        public ActivityOwner? Group { get; set; }
 
         public ActivityForm()
         {

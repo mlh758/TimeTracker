@@ -16,10 +16,10 @@
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">@activity.Client.Abbreviation.Substring(0,1)</MudAvatar>
+                            <MudAvatar Color="Color.Secondary">@activity.Owner.Name.Substring(0,1)</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.body1">@activity.Client.Abbreviation</MudText>
+                            <MudText Typo="Typo.body1">@activity.Owner.Name</MudText>
                             <MudText Typo="Typo.body2">@((new TimeSpan(0, activity.Duration, 0)).TotalHours) hour(s)</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
@@ -63,8 +63,8 @@
 
 
 @code {
-    private ClientActivity[] activity = { };
-    private ClientActivity[] todayActivity = { };
+    private SummaryActivity[] activity = { };
+    private SummaryActivity[] todayActivity = { };
     private DateTime currentMonth = DateTime.Today;
     private DateTime selectedDate = DateTime.Today;
     private DateTime nextDate = DateTime.Today;
@@ -79,7 +79,7 @@
     private async Task GetActivities()
     {
         try {
-            var newActivity = await Http.GetFromJsonAsync<ClientActivity[]>($"/api/ClientActivities?within={selectedDate.ToString("O")}");
+            var newActivity = await Http.GetFromJsonAsync<SummaryActivity[]>($"/api/activities?within={selectedDate.ToString("O")}");
             if (newActivity is not null)
             {
                 activity = newActivity;
@@ -103,7 +103,7 @@
         return activity.Any(a => a.Start.Date == date.Date);
     }
 
-    private ClientActivity[] FilterActivity(DateTime date) {
+    private SummaryActivity[] FilterActivity(DateTime date) {
         return activity.Where(a => a.Start.Date == date.Date).ToArray();
     }
 

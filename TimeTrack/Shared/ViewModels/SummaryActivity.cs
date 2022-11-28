@@ -1,10 +1,10 @@
 ﻿namespace TimeTrack.Shared.ViewModels
 { 
-    public readonly struct ClientActivity
+    public readonly struct SummaryActivity
     {
         public DateTime Start { get; init; }
         public int Duration { get; init; }
-        public SummaryClient Client { get; init; }
+        public ActivityOwner Owner { get; init; }
         public List<Assessment> Assessments { get; init; }
     }
 }

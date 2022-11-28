@@ -27,8 +27,8 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<int>("AssessmentsId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ClientActivitiesId")
-                        .HasColumnType("int");
+                    b.Property<long>("ClientActivitiesId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("AssessmentsId", "ClientActivitiesId");
 
@@ -39,11 +39,11 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("CategoryClient", b =>
                 {
-                    b.Property<int>("DisabilitiesId")
-                        .HasColumnType("int");
+                    b.Property<long>("DisabilitiesId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("DisabledClientsId")
-                        .HasColumnType("int");
+                    b.Property<long>("DisabledClientsId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("DisabilitiesId", "DisabledClientsId");
 
@@ -187,18 +187,21 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.Activity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
+                    b.Property<long?>("ClientId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int")
                         .HasComment("Duration in minutes");
+
+                    b.Property<long?>("GroupId")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("ScheduleId")
                         .HasColumnType("int");
@@ -209,6 +212,8 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("ScheduleId");
 
@@ -235,11 +240,11 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -255,19 +260,19 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.Client", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Abbreviation")
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
 
-                    b.Property<int>("AgeId")
-                        .HasColumnType("int");
+                    b.Property<long>("AgeId")
+                        .HasColumnType("bigint");
 
                     b.Property<long?>("CustomAgeId")
                         .HasColumnType("bigint");
@@ -284,17 +289,20 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<long?>("CustomSexualOrientationId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("GenderId")
-                        .HasColumnType("int");
+                    b.Property<long>("GenderId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("RaceId")
-                        .HasColumnType("int");
+                    b.Property<long?>("GroupId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("SettingId")
-                        .HasColumnType("int");
+                    b.Property<long>("RaceId")
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("SexualOrientationId")
-                        .HasColumnType("int");
+                    b.Property<long>("SettingId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SexualOrientationId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -316,6 +324,8 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("GenderId");
 
+                    b.HasIndex("GroupId");
+
                     b.HasIndex("RaceId");
 
                     b.HasIndex("SettingId");
@@ -332,8 +342,8 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<long>("DisabilityId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
+                    b.Property<long>("ClientId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("DisabilityId", "ClientId");
 
@@ -366,6 +376,23 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CustomCategories");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.Group", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Group");
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Schedule", b =>
@@ -587,14 +614,20 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasOne("TimeTrack.Server.Models.Client", "Client")
                         .WithMany("Activities")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("TimeTrack.Server.Models.Group", "Group")
+                        .WithMany("Activities")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.ClientCascade);
 
                     b.HasOne("TimeTrack.Server.Models.Schedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId");
 
                     b.Navigation("Client");
+
+                    b.Navigation("Group");
 
                     b.Navigation("Schedule");
                 });
@@ -637,6 +670,10 @@ namespace TimeTrack.Server.Data.Migrations
                         .HasForeignKey("GenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("TimeTrack.Server.Models.Group", null)
+                        .WithMany("Clients")
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("TimeTrack.Server.Models.Category", "Race")
                         .WithMany("RaceClients")
@@ -759,6 +796,13 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Navigation("SettingClients");
 
                     b.Navigation("SexualOrientationClients");
+                });
+
+            modelBuilder.Entity("TimeTrack.Server.Models.Group", b =>
+                {
+                    b.Navigation("Activities");
+
+                    b.Navigation("Clients");
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.User", b =>

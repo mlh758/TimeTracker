@@ -66,7 +66,7 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
@@ -74,6 +74,19 @@ namespace TimeTrack.Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Group",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Group", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -220,23 +233,48 @@ namespace TimeTrack.Server.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
+                name: "UserCredentials",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PublicKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    CredentialId = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    SignatureCounter = table.Column<long>(type: "bigint", nullable: false),
+                    RegDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AaGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserCredentials", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserCredentials_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Clients",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Abbreviation = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
-                    AgeId = table.Column<int>(type: "int", nullable: false),
-                    SettingId = table.Column<int>(type: "int", nullable: false),
-                    SexualOrientationId = table.Column<int>(type: "int", nullable: false),
-                    RaceId = table.Column<int>(type: "int", nullable: false),
-                    GenderId = table.Column<int>(type: "int", nullable: false),
+                    AgeId = table.Column<long>(type: "bigint", nullable: false),
+                    SettingId = table.Column<long>(type: "bigint", nullable: false),
+                    SexualOrientationId = table.Column<long>(type: "bigint", nullable: false),
+                    RaceId = table.Column<long>(type: "bigint", nullable: false),
+                    GenderId = table.Column<long>(type: "bigint", nullable: false),
                     CustomAgeId = table.Column<long>(type: "bigint", nullable: true),
                     CustomSettingId = table.Column<long>(type: "bigint", nullable: true),
                     CustomSexualOrientationId = table.Column<long>(type: "bigint", nullable: true),
                     CustomRaceId = table.Column<long>(type: "bigint", nullable: true),
                     CustomGenderId = table.Column<long>(type: "bigint", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    GroupId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -307,17 +345,23 @@ namespace TimeTrack.Server.Data.Migrations
                         principalTable: "CustomCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Clients_Group_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Group",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Activities",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Start = table.Column<DateTime>(type: "date", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false, comment: "Duration in minutes"),
-                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    ClientId = table.Column<long>(type: "bigint", nullable: true),
+                    GroupId = table.Column<long>(type: "bigint", nullable: true),
                     ScheduleId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -327,8 +371,12 @@ namespace TimeTrack.Server.Data.Migrations
                         name: "FK_Activities_Clients_ClientId",
                         column: x => x.ClientId,
                         principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Activities_Group_GroupId",
+                        column: x => x.GroupId,
+                        principalTable: "Group",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Activities_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
@@ -340,8 +388,8 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "CategoryClient",
                 columns: table => new
                 {
-                    DisabilitiesId = table.Column<int>(type: "int", nullable: false),
-                    DisabledClientsId = table.Column<int>(type: "int", nullable: false)
+                    DisabilitiesId = table.Column<long>(type: "bigint", nullable: false),
+                    DisabledClientsId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -364,7 +412,7 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "ClientCustomDisability",
                 columns: table => new
                 {
-                    ClientId = table.Column<int>(type: "int", nullable: false),
+                    ClientId = table.Column<long>(type: "bigint", nullable: false),
                     DisabilityId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
@@ -389,7 +437,7 @@ namespace TimeTrack.Server.Data.Migrations
                 columns: table => new
                 {
                     AssessmentsId = table.Column<int>(type: "int", nullable: false),
-                    ClientActivitiesId = table.Column<int>(type: "int", nullable: false)
+                    ClientActivitiesId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -412,6 +460,11 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "IX_Activities_ClientId",
                 table: "Activities",
                 column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Activities_GroupId",
+                table: "Activities",
+                column: "GroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Activities_ScheduleId",
@@ -508,6 +561,11 @@ namespace TimeTrack.Server.Data.Migrations
                 column: "GenderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Clients_GroupId",
+                table: "Clients",
+                column: "GroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Clients_RaceId",
                 table: "Clients",
                 column: "RaceId");
@@ -530,6 +588,11 @@ namespace TimeTrack.Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_CustomCategories_UserId",
                 table: "CustomCategories",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserCredentials_UserId",
+                table: "UserCredentials",
                 column: "UserId");
         }
 
@@ -560,6 +623,9 @@ namespace TimeTrack.Server.Data.Migrations
                 name: "ClientCustomDisability");
 
             migrationBuilder.DropTable(
+                name: "UserCredentials");
+
+            migrationBuilder.DropTable(
                 name: "Activities");
 
             migrationBuilder.DropTable(
@@ -579,6 +645,9 @@ namespace TimeTrack.Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomCategories");
+
+            migrationBuilder.DropTable(
+                name: "Group");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -55,15 +55,15 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ICollection<SummaryClient>> GetClients()
+        public async Task<ICollection<ActivityOwner>> GetClients()
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var clients = await _clientRepository.All(userId);
-            return clients.Select(c => new SummaryClient() { Abbreviation = c.Abbreviation, Id = c.Id }).ToList();
+            return clients.Select(c => new ActivityOwner() { Name = c.Abbreviation, Id = c.Id }).ToList();
         }
 
         [HttpPost]
-        public async Task<ActionResult<SummaryClient>> CreateClient(NewClientForm clientData)
+        public async Task<ActionResult<ActivityOwner>> CreateClient(NewClientForm clientData)
         {
             if (!ModelState.IsValid)
             {
@@ -71,11 +71,11 @@ namespace TimeTrack.Server.Controllers
             }
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var newClient = await _clientRepository.Create(userId, clientData);
-            return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, new SummaryClient() { Id = newClient.Id, Abbreviation = newClient.Abbreviation });
+            return CreatedAtAction(nameof(GetClient), new { id = newClient.Id }, new ActivityOwner() { Id = newClient.Id, Name = newClient.Abbreviation });
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult<SummaryClient>> EditClient(int id, NewClientForm clientData)
+        public async Task<ActionResult<ActivityOwner>> EditClient(int id, NewClientForm clientData)
         {
             if (!ModelState.IsValid)
             {
@@ -87,7 +87,7 @@ namespace TimeTrack.Server.Controllers
             {
                 return NotFound();
             }
-            return CreatedAtAction(nameof(GetClient), new { id = updatedClient.Id }, new SummaryClient() { Id = updatedClient.Id, Abbreviation = updatedClient.Abbreviation });
+            return CreatedAtAction(nameof(GetClient), new { id = updatedClient.Id }, new ActivityOwner() { Id = updatedClient.Id, Name = updatedClient.Abbreviation });
         }
 
         [HttpDelete("{id}")]

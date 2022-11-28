@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
+using TimeTrack.Shared.ViewModels;
 
 namespace TimeTrack.Server.Models
 {
@@ -16,13 +17,16 @@ namespace TimeTrack.Server.Models
      */
     public class Activity
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         [Column(TypeName = "date")]
         public DateTime Start { get; set; }
         [Comment("Duration in minutes")]
         public int Duration { get; set; }
-        public int ClientId { get; set; }
+        public long? ClientId { get; set; }
         public Client? Client { get; set; }
+
+        public long? GroupId { get; set; }
+        public Group? Group { get; set; }
 
         public Schedule? Schedule { get; set; }
 
@@ -33,8 +37,22 @@ namespace TimeTrack.Server.Models
             Start = previous.Start;
             Duration = previous.Duration;
             ClientId = previous.ClientId;
+            GroupId = previous.GroupId;
             Schedule = previous.Schedule;
             Assessments = previous.Assessments;
+        }
+
+        public ActivityOwner GetOwner()
+        {
+            if (Group is not null)
+            {
+                return new ActivityOwner() {  Id = Group.Id, Name = Group.Name };
+            }
+            if (Client is not null)
+            {
+                return new ActivityOwner() { Id = Client.Id, Name = Client.Abbreviation };
+            }
+            throw new Exception("activity or client must be set");
         }
     }
 }

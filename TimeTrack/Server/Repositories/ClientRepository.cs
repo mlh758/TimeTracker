@@ -14,10 +14,10 @@ namespace TimeTrack.Server.Repositories
      */
     public interface IClientRepository
     {
-        public Task<M.Client?> Find(string userId, int clientId);
+        public Task<M.Client?> Find(string userId, long clientId);
         public Task<List<M.Client>> All(string userId);
         public Task<M.Client> Create(string userId, NewClientForm form);
-        public Task<M.Client?> Update(string userId, int clientId, NewClientForm form);
+        public Task<M.Client?> Update(string userId, long clientId, NewClientForm form);
         public Task Destroy(string userId, int clientId);
     }
     /*
@@ -43,7 +43,7 @@ namespace TimeTrack.Server.Repositories
             return newClient;
         }
 
-        public async Task<M.Client?> Update(string userId, int clientId, NewClientForm clientData)
+        public async Task<M.Client?> Update(string userId, long clientId, NewClientForm clientData)
         {
             var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
             if (client is null)
@@ -71,7 +71,7 @@ namespace TimeTrack.Server.Repositories
             }
             else
             {
-                client.RaceId = (int)form.Race!.Id;
+                client.RaceId = form.Race!.Id;
             }
  
             if (form.Gender is not null && form.Gender.IsCustom)
@@ -81,7 +81,7 @@ namespace TimeTrack.Server.Repositories
             }
             else
             {
-                client.GenderId = (int)form.Gender!.Id;
+                client.GenderId = form.Gender!.Id;
             }
 
             if (form.SexualOrientation is not null && form.SexualOrientation.IsCustom)
@@ -91,7 +91,7 @@ namespace TimeTrack.Server.Repositories
             }
             else
             {
-                client.SexualOrientationId = (int)form.SexualOrientation!.Id;
+                client.SexualOrientationId = form.SexualOrientation!.Id;
             }
 
             if (form.Setting is not null && form.Setting.IsCustom)
@@ -101,7 +101,7 @@ namespace TimeTrack.Server.Repositories
             }
             else
             {
-                client.SettingId = (int)form.Setting!.Id;
+                client.SettingId = form.Setting!.Id;
             }
 
             if (form.Age is not null && form.Age.IsCustom)
@@ -111,7 +111,7 @@ namespace TimeTrack.Server.Repositories
             }
             else
             {
-                client.AgeId = (int)form.Age!.Id;
+                client.AgeId = form.Age!.Id;
             }
             await AssignDisabilities(client, form);
         }
@@ -125,7 +125,7 @@ namespace TimeTrack.Server.Repositories
             client.CustomDisabilities = await _context.CustomCategories.Where(c => c.Type == CategoryType.Disability && customDisabilities.Contains(c.Id)).ToListAsync();
         }
 
-        public async Task<M.Client?> Find(string userId, int clientId)
+        public async Task<M.Client?> Find(string userId, long clientId)
         {
             var client = await _context
             .Clients

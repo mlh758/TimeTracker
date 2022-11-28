@@ -7,15 +7,27 @@
 <PageTitle>Log Activity</PageTitle>
 
 <MudText Typo="Typo.h1">New Activity</MudText>
+@if (saveError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => saveError = false)">Unable to create the activity, please try again.</MudAlert>
+}
 
 <ActivityEditor Model="@model" OnSubmit="@OnValidSubmit"/>
 
 @code {
     ActivityForm model = new ActivityForm();
+    private bool saveError = false;
 
     async Task OnValidSubmit(ActivityForm form)
     {
-        var response = await Http.PostAsync("/api/clientactivities", JsonContent.Create(form));
-        NavigationManager.NavigateTo("/");
+        var response = await Http.PostAsync("/api/activities", JsonContent.Create(form));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/");
+
+        } else
+        {
+            saveError = true;
+        }
     }
 }

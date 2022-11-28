@@ -9,19 +9,19 @@ namespace TimeTrack.Server.Models
      */
     public class Client
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         [MaxLength(16)]
         public string Abbreviation { get; set; }
 
-        public int AgeId { get; set; }
+        public long AgeId { get; set; }
         public Category? Age { get; set; }
-        public int SettingId { get; set; }
+        public long SettingId { get; set; }
         public Category? Setting { get; set; }
-        public int SexualOrientationId { get; set; }
+        public long SexualOrientationId { get; set; }
         public Category? SexualOrientation { get; set; }
-        public int RaceId { get; set; }
+        public long RaceId { get; set; }
         public Category? Race { get; set; }
-        public int GenderId { get; set; }
+        public long GenderId { get; set; }
         public Category? Gender { get; set; }
         public List<Category>? Disabilities { get; set; }
 

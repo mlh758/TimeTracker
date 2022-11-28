@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TimeTrack.Server.Data;
+using TimeTrack.Server.Services;
 using TimeTrack.Server.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +14,12 @@ namespace TimeTrack.Server.Controllers
     [Route("/api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ClientActivitiesController : ControllerBase
+    public class ActivitiesController : ControllerBase
     {
         private readonly IActivityRepository _activityRepo;
         private readonly IAssessmentRepository _assessmentRepo;
         private readonly IClientRepository _clientRepo;
-        public ClientActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository, IClientRepository clientRepository)
+        public ActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository, IClientRepository clientRepository)
         {
             _activityRepo = activityRepo;
             _assessmentRepo = assessmentRepository;
@@ -41,43 +41,38 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ICollection<VM.ClientActivity>> GetActivities(DateTime within)
+        public async Task<ICollection<VM.SummaryActivity>> GetActivities(DateTime within)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var startAt = new DateTime(within.Year, within.Month, 1);
             var endAt = startAt.AddDays(DateTime.DaysInMonth(startAt.Year, startAt.Month));
             var activities = await _activityRepo.ForUserWithin(userId, startAt, endAt);
-            return activities.Select(a => new VM.ClientActivity()
+            return activities.Select(a => new VM.SummaryActivity()
             {
                 Start = a.Start,
                 Duration = a.Duration,
-                Client = new VM.SummaryClient() { Abbreviation = a.Client!.Abbreviation, Id = a.ClientId },
+                Owner = a.GetOwner(),
                 Assessments = a.Assessments!.Select(a => new VM.Assessment { Name = a.Name }).ToList(),
 
             }).ToList();
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateClientActivity(ActivityForm body)
+        public async Task<ActionResult> Create(ActivityForm body)
         {
             if (body.Client is null || body.Assessments is null || !ModelState.IsValid)
             {
                 return BadRequest();
             }
+            // verify the client that is having activity generated belongs to the current user
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var client = await _clientRepo.Find(userId, body.ClientId!.Value);
+            var client = await _clientRepo.Find(userId, body.Client.Id);
             if (client is null)
             {
                 return NotFound();
             }
             var assessments = await _assessmentRepo.FindById(body.Assessments.Select(el => el.Id));
-            var newActivity = new Activity
-            {
-                Start = body.Start!.Value!,
-                Duration = body.Duration!.Value,
-                ClientId = body.ClientId!.Value,
-                Assessments = assessments.ToList(),
-            };
+            var newActivity = ActivityFactory.FromForm(body, assessments);
             if (body.Schedule is null)
             {
                 newActivity = await _activityRepo.Create(newActivity);

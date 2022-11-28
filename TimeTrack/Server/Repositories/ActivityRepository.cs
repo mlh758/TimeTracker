@@ -18,7 +18,7 @@ namespace TimeTrack.Server.Repositories
     }
     public class ActivityRepository : IActivityRepository
     {
-        
+
         private readonly TimeContext _context;
         public ActivityRepository(TimeContext context)
         {
@@ -27,6 +27,7 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Activity> Create(Activity activity)
         {
+
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
             return activity;
@@ -35,13 +36,13 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Activity?> Find(string userId, int Id)
         {
-            return await userActivity(userId).Where(a => a.Id == Id).FirstOrDefaultAsync();
+            return await ClientUserActivity(userId).Where(a => a.Id == Id).FirstOrDefaultAsync();
         }
 
         public async Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end)
         {
-            var activity = userActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client);
-            return await activity.ToListAsync();
+            var activity = ClientUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client);
+            return await activity.Cast<Activity>().ToListAsync();
         }
 
         public async Task<int> CreateScheduled(Activity activity)
@@ -64,12 +65,11 @@ namespace TimeTrack.Server.Repositories
             return count;
         }
 
-        private IQueryable<Activity> userActivity(string userId)
+        private IQueryable<Activity> ClientUserActivity(string userId)
         {
-            return from u in _context.Users
-                   join cl in _context.Clients on u.Id equals cl.UserId
+            return from cl in _context.Clients
                    join a in _context.Activities on cl.Id equals a.ClientId
-                   where u.Id == userId
+                   where cl.UserId == userId
                    select a;
         }
     }

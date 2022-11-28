@@ -12,7 +12,7 @@
         <MudList>
             @foreach (var client in clients)
             {
-                <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Abbreviation</MudLink></MudListItem>
+                <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Name</MudLink></MudListItem>
             }
         </MudList>
     </MudPaper>
@@ -25,10 +25,10 @@
 
 
 @code {
-    private SummaryClient[]? clients;
+    private ActivityOwner[]? clients;
 
     protected override async Task OnInitializedAsync()
     {
-        clients = await Http.GetFromJsonAsync<SummaryClient[]>("/api/Clients");
+        clients = await Http.GetFromJsonAsync<ActivityOwner[]>("/api/Clients");
     }
 }

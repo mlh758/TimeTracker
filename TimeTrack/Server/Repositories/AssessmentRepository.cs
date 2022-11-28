@@ -6,7 +6,7 @@ namespace TimeTrack.Server.Repositories
 {
     public interface IAssessmentRepository
     {
-        public Task<ICollection<Assessment>> FindById(IEnumerable<int> ids);
+        public Task<IEnumerable<Assessment>> FindById(IEnumerable<int> ids);
     }
     public class AssessmentRepository : IAssessmentRepository
     {
@@ -16,7 +16,7 @@ namespace TimeTrack.Server.Repositories
             _context = context;
         }
 
-        public async Task<ICollection<Assessment>> FindById(IEnumerable<int> ids)
+        public async Task<IEnumerable<Assessment>> FindById(IEnumerable<int> ids)
         {
             return await _context.Assessments.Where(a => ids.Contains(a.Id)).ToListAsync();
         }
