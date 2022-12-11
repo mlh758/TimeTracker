@@ -5,7 +5,7 @@
         public long Id { get; set; }
         public string Name { get; set; }
 
-        public ICollection<Client>? Clients { get; set; }
-        public ICollection<Activity>? Activities { get; set; }
+        public IEnumerable<Client>? Clients { get; set; }
+        public IEnumerable<Activity>? Activities { get; set; }
     }
 }
