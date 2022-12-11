@@ -17,8 +17,14 @@
         @if (Schedule.Frequency == Frequency.Weekly)
         {
             <MudText Typo="Typo.caption">Select days for this activity:</MudText>
-            <MudButtonGroup>
-                @foreach (var (i, day) in EachDay())
+            <MudButtonGroup Class="d-none d-md-block">
+                @foreach (var (i, day) in EachDay(Weekdays))
+                {
+                    <MudButton Class="@(WeekdayClass(i))" type="button" @onclick="() => HandleWeekdays(i)">@day</MudButton>
+                }
+            </MudButtonGroup>
+            <MudButtonGroup Class="d-md-none">
+                @foreach (var (i, day) in EachDay(ShortWeekdays))
                 {
                     <MudButton Class="@(WeekdayClass(i))" type="button" @onclick="() => HandleWeekdays(i)">@day</MudButton>
                 }
@@ -32,10 +38,11 @@
     public Schedule Schedule { get; set; } = new Schedule();
 
     private List<string> Weekdays = new() { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    private List<string> ShortWeekdays = new() { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
 
-    private IEnumerable<(int, string)> EachDay()
+    private IEnumerable<(int, string)> EachDay(IEnumerable<string> weekdays)
     {
-        return Enumerable.Range(0, 7).Zip(Weekdays);
+        return Enumerable.Range(0, 7).Zip(weekdays);
     }
 
     private void HandleWeekdays(int i)
