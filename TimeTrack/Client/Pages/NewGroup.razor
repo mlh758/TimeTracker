@@ -1,0 +1,33 @@
+﻿@page "/groups/new"
+@using TimeTrack.Shared
+@using TimeTrack.Client.Components
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>New Group</PageTitle>
+<MudText Typo="Typo.h1">New Group</MudText>
+
+@if (saveError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => saveError = false)">Unable to create the group, please try again.</MudAlert>
+}
+
+<GroupEditor Model="@Model" OnSubmit="OnValidSubmit" />
+
+@code {
+    private GroupForm Model = new GroupForm();
+    private bool saveError = false;
+
+    async Task OnValidSubmit(GroupForm form)
+    {
+        var response = await Http.PostAsync("/api/groups", JsonContent.Create(form));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/groups");
+        }
+        else
+        {
+            saveError = true;
+        }
+    }
+}

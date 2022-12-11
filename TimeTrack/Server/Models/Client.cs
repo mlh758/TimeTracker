@@ -41,6 +41,9 @@ namespace TimeTrack.Server.Models
         public string UserId { get; set; }
         public User? User { get; set; }
 
+        public long? GroupId { get; set; }
+        public Group? Group { get; set; }
+
         public List<Activity>? Activities { get; set; }
 
         public Client(string abbreviation)

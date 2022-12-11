@@ -18,12 +18,11 @@ namespace TimeTrack.Server.Repositories
         public Task<List<M.Client>> All(string userId);
         public Task<M.Client> Create(string userId, NewClientForm form);
         public Task<M.Client?> Update(string userId, long clientId, NewClientForm form);
-        public Task Destroy(string userId, int clientId);
+        public Task Destroy(string userId, long clientId);
     }
     /*
-     * There's a lot of non-null assert and casting here. It should be safe because
-     * we validate on model state and the key for category is a 32 bit int. There's
-     * probably a more type safe way to handle all this though.
+     * There is probably a more type safe way to deal with all the null assertions. Should probably
+     * parse into a version of the form where all fields are non-null in the controller or something.
      */
     public class ClientRepository : IClientRepository
     {
@@ -156,7 +155,7 @@ namespace TimeTrack.Server.Repositories
             return await _context.Clients.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        async Task IClientRepository.Destroy(string userId, int clientId)
+        public async Task Destroy(string userId, long clientId)
         {
             var client = await _context.Clients.Where(c => c.UserId == userId && c.Id == clientId).FirstOrDefaultAsync();
             if (client is not null)

@@ -4,7 +4,6 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>View Client</PageTitle>
-<MudText Typo="Typo.h1">View Client</MudText>
 
 @if (loadError)
 {
@@ -18,9 +17,8 @@
 
 @if (client is not null)
 {
+    <MudText Typo="Typo.h2">@client.Abbreviation</MudText>
     <dl>
-        <dt>Abbreviation</dt>
-        <dd>@client.Abbreviation</dd>
         <dt>Treatment Setting</dt>
         <dd>@client.Setting.Name</dd>
         <dt>Age</dt>
@@ -35,7 +33,7 @@
         <dd>@String.Join(", ", client.Disabilities.Select(d => d.Name).ToList())</dd>
     </dl>
 
-    <div class="actions">
+    <div class="mt-2 d-flex justify-space-between">
         <MudButton Variant="Variant.Outlined" Href="@($"/clients/{Id}/edit")">Edit</MudButton>
         <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@Delete">Delete</MudButton>
     </div>

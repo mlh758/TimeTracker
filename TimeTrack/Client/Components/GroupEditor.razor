@@ -1,0 +1,78 @@
+﻿@using TimeTrack.Shared
+@using TimeTrack.Shared.ViewModels
+@inject HttpClient Http
+
+<EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudTextField Label="Group Name" @bind-Value="Model.Name" Required />
+    <MudAutocomplete T="ActivityOwner"
+                     @ref="clientSearch"
+                     Label="Choose Clients"
+                     SearchFunc="@SearchClients"
+                     ToStringFunc="@(e=> e.Name)"
+                     ValueChanged="OnClientChosen"
+                     Clearable
+                     ResetValueOnEmptyText
+                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                     HelperText="Search for clients" />
+    @foreach (var a in Model.Clients)
+    {
+        <MudChip Color="Color.Secondary" Variant="Variant.Outlined" OnClose="@(() => Model.Clients.Remove(a))">
+            <span class="chip-text">
+                @a.Name
+            </span>
+        </MudChip>
+    }
+    <div>
+        <ValidationSummary />
+    </div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Save Group</MudButton>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public GroupForm Model { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<GroupForm> OnSubmit { get; set; }
+
+    private ActivityOwner[]? clients;
+    private MudAutocomplete<ActivityOwner>? clientSearch;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Http.GetFromJsonAsync<ActivityOwner[]>("/api/Clients");
+    }
+
+    async Task OnValidSubmit()
+    {
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    private async void OnClientChosen(ActivityOwner chosen)
+    {
+
+        Model.Clients.Add(chosen);
+        if (clientSearch is not null)
+        {
+            await clientSearch.Clear();
+            await clientSearch.BlurAsync();
+        }
+    }
+
+    private async Task<IEnumerable<ActivityOwner>> SearchClients(string text)
+    {
+        await Task.Delay(0);
+        if (clients is null)
+        {
+            return new List<ActivityOwner>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return clients;
+        }
+
+        return clients.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+}

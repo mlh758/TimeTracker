@@ -1,0 +1,68 @@
+﻿@page "/groups/{Id:int}"
+@using VM = TimeTrack.Shared.ViewModels
+@using TimeTrack.Client.Components
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>View Group</PageTitle>
+
+@if (loadError)
+{
+        <MudAlert Severity="Severity.Error">Unable to load this group.</MudAlert>
+}
+
+@if (notFound)
+{
+        <MudAlert Severity="Severity.Warning">Unable to find this group. Check the My Groups page.</MudAlert>
+}
+
+@if (group is VM.Group groupValue)
+{
+        <MudText Typo="Typo.h2">@groupValue.Name</MudText>
+
+        <MudText Class="my-3">Clients:</MudText>
+        <ClientList Clients="@groupValue.Clients" />
+
+        <div class="mt-2 d-flex justify-space-between">
+            <MudButton Variant="Variant.Outlined" Href="@($"/groups/{Id}/edit")">Edit</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@Delete">Delete</MudButton>
+        </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    VM.Group? group;
+    bool loadError = false;
+    bool notFound = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            group = await Http.GetFromJsonAsync<VM.Group>($"/api/Groups/{Id}");
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                notFound = true;
+            }
+            else
+            {
+                loadError = true;
+            }
+        }
+    }
+
+    private async Task Delete()
+    {
+        var response = await Http.DeleteAsync($"/api/Groups/{Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/groups");
+        }
+    }
+}

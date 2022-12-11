@@ -1,0 +1,15 @@
+﻿@using TimeTrack.Shared.ViewModels
+
+<MudPaper>
+    <MudList>
+        @foreach (var client in Clients)
+        {
+            <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Name</MudLink></MudListItem>
+        }
+    </MudList>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<ActivityOwner> Clients { get; set; } = new List<ActivityOwner>();
+}

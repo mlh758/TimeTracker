@@ -1,5 +1,6 @@
 ﻿@page "/clients"
 @using TimeTrack.Shared.ViewModels
+@using TimeTrack.Client.Components
 @inject HttpClient Http
 
 <PageTitle>My Clients</PageTitle>
@@ -8,14 +9,7 @@
 
 @if (clients is not null && clients.Length > 0)
 {
-    <MudPaper>
-        <MudList>
-            @foreach (var client in clients)
-            {
-                <MudListItem><MudLink Href="@($"/clients/{client.Id}")">@client.Name</MudLink></MudListItem>
-            }
-        </MudList>
-    </MudPaper>
+    <ClientList Clients="@clients" />
 }
 
 @if (clients is not null && clients.Length == 0)

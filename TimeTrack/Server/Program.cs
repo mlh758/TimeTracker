@@ -26,6 +26,7 @@ namespace TimeTrack
             builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
             builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
             builder.Services.AddScoped<IClientRepository, ClientRepository>();
+            builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
             builder.Services.AddSession(opt =>
             {

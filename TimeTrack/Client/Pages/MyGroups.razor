@@ -1,0 +1,45 @@
+﻿@page "/groups"
+@using TimeTrack.Shared.ViewModels
+@inject HttpClient Http
+
+
+<PageTitle>My Groups</PageTitle>
+<MudText Typo="Typo.h1">My Groups</MudText>
+
+@if (loadError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => loadError = false)">Unable to load your groups, please try again.</MudAlert>
+}
+
+@if (Groups is not null && Groups.Length > 0)
+{
+    <MudPaper>
+        <MudList>
+            @foreach (var group in Groups)
+            {
+                <MudListItem><MudLink Href="@($"/groups/{group.Id}")">@group.Name</MudLink></MudListItem>
+            }
+        </MudList>
+    </MudPaper>
+}
+
+@if (Groups is not null && Groups.Length == 0)
+{
+    <MudText>It doesn't look like you have any groups yet. Go to Add Group to get started.</MudText>
+}
+
+@code {
+    private ActivityOwner[]? Groups;
+    private bool loadError = false;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Groups = await Http.GetFromJsonAsync<ActivityOwner[]>("/api/Groups");
+        }
+        catch
+        {
+            loadError = true;
+        }
+    }
+}

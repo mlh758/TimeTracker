@@ -18,15 +18,20 @@ namespace TimeTrack.Shared
         public HashSet<Assessment> Assessments { get; set; }
 
 
-        [Required]
+        [CustomValidation(typeof(ActivityForm), "ClientOrGroupRequired", ErrorMessage = "You must select either a client or a group")]
         public ActivityOwner? Client { get; set; }
 
-        // TODO: Wire this up and require groups
+        [CustomValidation(typeof(ActivityForm), "ClientOrGroupRequired", ErrorMessage = "You must select either a client or a group")]
         public ActivityOwner? Group { get; set; }
 
         public ActivityForm()
         {
             Assessments = new HashSet<Assessment>();
+        }
+
+        public static bool ClientOrGroupRequired(ActivityForm form)
+        {
+            return form.Client is not null ^ form.Group is not null;
         }
     }
 }
