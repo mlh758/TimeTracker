@@ -79,8 +79,12 @@
 
     private async void OnAssessmentChosen(Assessment chosen)
     {
-
-        Model.Assessments.Add(chosen);
+        // MudBlazor isn't handling nullable value types well. This would be Assessment? but with structs
+        // it all goes very wrong. Instead checking if we got an empty struct by looking at chosen.Name
+        if (!String.IsNullOrEmpty(chosen.Name))
+        {
+            Model.Assessments.Add(chosen);
+        }
         if (assessmentSearch is not null)
         {
             await assessmentSearch.Clear();
@@ -112,12 +116,14 @@
             return new List<Assessment>();
         }
 
+        var availableAssessments = assessments.Where(a => !Model.Assessments.Contains(a));
+
         if (String.IsNullOrEmpty(text))
         {
-            return assessments;
+            return availableAssessments;
         }
 
-        return assessments.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+        return availableAssessments.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
     async Task OnValidSubmit()

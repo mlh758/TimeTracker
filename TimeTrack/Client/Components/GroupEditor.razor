@@ -49,10 +49,12 @@
         await OnSubmit.InvokeAsync(Model);
     }
 
-    private async void OnClientChosen(ActivityOwner chosen)
+    private async void OnClientChosen(ActivityOwner? chosen)
     {
-
-        Model.Clients.Add(chosen);
+        if (chosen is not null)
+        {
+            Model.Clients.Add(chosen);
+        }
         if (clientSearch is not null)
         {
             await clientSearch.Clear();
@@ -67,12 +69,13 @@
         {
             return new List<ActivityOwner>();
         }
+        var availableClients = clients.Where(c => !Model.Clients.Contains(c));
 
         if (String.IsNullOrEmpty(text))
         {
-            return clients;
+            return availableClients;
         }
 
-        return clients.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+        return availableClients.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 }
