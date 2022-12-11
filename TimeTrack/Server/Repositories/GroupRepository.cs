@@ -24,7 +24,7 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<List<Group>> All(string userId)
         {
-            var query = from g in _context.Groups join cl in _context.Clients on g.Id equals cl.GroupId where cl.UserId == userId select g;
+            var query = _context.Groups.Where(g => g.Clients!.Any(c => c.UserId == userId));
             return await query.ToListAsync();
         }
 
@@ -67,7 +67,7 @@ namespace TimeTrack.Server.Repositories
 
         private IQueryable<Group> FindById(string userId, long id)
         {
-            return from g in _context.Groups join cl in _context.Clients on g.Id equals cl.GroupId where cl.UserId == userId && g.Id == id select g;
+            return _context.Groups.Where(g => g.Id== id && g.Clients!.Any(c => c.UserId == userId));
         }
 
         private async Task<List<Models.Client>> LoadClients(string userId, GroupForm form)
