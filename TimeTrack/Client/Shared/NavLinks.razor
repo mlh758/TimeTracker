@@ -13,5 +13,8 @@
         <MudNavLink Href="/categories" Match="NavLinkMatch.All">Custom Categories</MudNavLink>
         <MudNavLink Href="/categories/new" Match="NavLinkMatch.Prefix">Add Category</MudNavLink>
     </MudNavGroup>
-    <MudNavLink Href="/account" Match="NavLinkMatch.All">My Account</MudNavLink>
+    <MudNavGroup Title="My Account" Expanded="false">
+        <MudNavLink Href="/account" Match="NavLinkMatch.All">Register Device</MudNavLink>
+        <MudNavLink Href="/account/authenticators" Match="NavLinkMatch.Prefix">My Devices</MudNavLink>
+    </MudNavGroup>
 </MudNavMenu>

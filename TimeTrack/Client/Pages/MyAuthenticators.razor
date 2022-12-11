@@ -1,0 +1,55 @@
+﻿@page "/account/authenticators"
+@using TimeTrack.Shared.ViewModels
+@inject HttpClient Http
+
+<MudText Typo="Typo.h1">Registered Devices</MudText>
+<MudSimpleTable>
+    <thead>
+        <th>Device Name</th>
+        <th>Registered On</th>
+        <th />
+    </thead>
+    <tbody>
+        @if (authenticators is null)
+        {
+            @for (var i = 0; i < 3; i++)
+            {
+                <MudSkeleton Width="100%" Height="2rem" />
+            }
+        }
+        else
+        {
+            @foreach (var auth in authenticators)
+            {
+                <tr>
+                    <td>@auth.Name</td>
+                    <td>@auth.Registered.ToLongDateString()</td>
+                    <td>
+                        <MudIconButton Disabled="@(Deleting.Contains(auth.Id))" Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteAuthenticator(auth.Id))" />
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</MudSimpleTable>
+
+@code {
+    private Authenticator[]? authenticators;
+    private HashSet<int> Deleting = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        authenticators = await Http.GetFromJsonAsync<Authenticator[]>("/api/authenticators");
+    }
+
+    private async Task DeleteAuthenticator(int id)
+    {
+        Deleting.Add(id);
+        var result = await Http.DeleteAsync($"/api/authenticators/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            authenticators = authenticators!.Where(a => a.Id != id).ToArray();
+        }
+        Deleting.Remove(id);
+    }
+}

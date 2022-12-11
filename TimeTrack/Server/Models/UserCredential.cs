@@ -1,11 +1,16 @@
 ﻿using Fido2NetLib;
 using Fido2NetLib.Objects;
+using System.ComponentModel.DataAnnotations;
 
 namespace TimeTrack.Server.Models
 {
     public class UserCredential
     {
+        [MaxLength(64, ErrorMessage = "Must be less than 64 characters")]
+        [Required]
+        public string Name { get; set; }
         public int Id { get; set; }
+        [Required]
         public string UserId { get; set; }
         public User? User { get; set; }
         public byte[] PublicKey { get; set; }
@@ -17,13 +22,15 @@ namespace TimeTrack.Server.Models
 
         public UserCredential(string userId)
         {
+            Name = "";
             UserId = userId;
-            PublicKey = new byte[0];
-            CredentialId = new byte[0];
+            PublicKey = Array.Empty<byte>();
+            CredentialId = Array.Empty<byte>();
         }
 
         public UserCredential(string userId, byte[] publicKey, byte[] credId)
         {
+            Name = "";
             UserId = userId;
             PublicKey = publicKey;
             CredentialId = credId;

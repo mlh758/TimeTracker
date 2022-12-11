@@ -1,10 +1,18 @@
 ﻿@inject HttpClient Http
 @inject IJSRuntime JS
 @inject ILogger<RegisterDevice> Logger
+@inject NavigationManager Nav
 @implements IAsyncDisposable
-<MudText Typo="Typo.h3">Register This Device</MudText>
 
-<MudButton Disabled="@(data is null)" OnClick="@HandleRegister">Register!</MudButton>
+<MudText Typo="Typo.h3">Register This Device</MudText>
+<MudText Typo="Typo.caption">Use your face, fingerprint, or other <a href="https://fidoalliance.org/fido2/">FIDO2 device</a> to log in, instead of your password.</MudText>
+<form>
+    <MudTextField @bind-Value="@deviceName" Label="Device Name" HelperText="Name this device so that you can recognize it later in your account settings." Required />
+    <div class="mt-2">
+
+        <MudButton Disabled="@(data is null)" OnClick="@HandleRegister">Register!</MudButton>
+    </div>
+</form>
 @if (registerError)
 {
     <MudAlert Severity="Severity.Warning" ShowCloseIcon CloseIconClicked="@(() => registerError = false)">The registration ceremony failed. You may try again if that wasn't intentional.</MudAlert>
@@ -14,6 +22,7 @@
     private dynamic? data;
     private IJSObjectReference module;
     private bool registerError = false;
+    private string? deviceName;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -32,8 +41,10 @@
         try
         {
             var credential = await module.InvokeAsync<object>("createCredential", new object[] { data! });
-            var result = await Http.PostAsJsonAsync("/api/authenticators", credential);
-        } catch (JSException e)
+            var result = await Http.PostAsJsonAsync("/api/authenticators", new { Name = deviceName, Credential = credential});
+            Nav.NavigateTo("/account/authenticators");
+        }
+        catch (JSException e)
         {
             Logger.LogError(e.Message);
             Logger.LogError(e.StackTrace);

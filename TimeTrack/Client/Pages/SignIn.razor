@@ -72,7 +72,7 @@
         try
         {
             isLoading = true;
-            var options = await Http.GetFromJsonAsync<object>($"/api/authenticators/?username={HttpUtility.UrlEncode(model.Email)}");
+            var options = await Http.GetFromJsonAsync<object>($"/api/authenticators/options?username={HttpUtility.UrlEncode(model.Email)}");
             var credential = await module.InvokeAsync<object>("makeAssertion", new object[] { options });
             if (credential is not null)
             {

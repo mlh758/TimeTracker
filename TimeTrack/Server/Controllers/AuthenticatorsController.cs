@@ -23,6 +23,11 @@ namespace TimeTrack.Server.Controllers
      */
     public class AuthenticatorsController : Controller
     {
+        public readonly struct CreateCredentialRequest
+        {
+            public string Name { get; init; }
+            public AuthenticatorAttestationRawResponse Credential { get; init; }
+        }
         public class CredentialCreateException : ApplicationException { }
         private readonly TimeContext _context;
         private readonly IFido2 _fido;
@@ -49,7 +54,7 @@ namespace TimeTrack.Server.Controllers
             return Json(options);
         }
 
-        [HttpGet]
+        [HttpGet("options")]
         [AllowAnonymous]
         public async Task<ActionResult> AssertionOptions(string username)
         {
@@ -65,7 +70,7 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(AuthenticatorAttestationRawResponse attestation)
+        public async Task<ActionResult> Create(CreateCredentialRequest request)
         {
             var jsonOptions = HttpContext.Session.GetString(attestationOptionsKey);
             HttpContext.Session.Remove(attestationOptionsKey);
@@ -76,7 +81,7 @@ namespace TimeTrack.Server.Controllers
                 var count = await _context.UserCredentials.Where(uc => uc.UserId == userId).CountAsync();
                 return count <= 1;
             };
-            var success = await _fido.MakeNewCredentialAsync(attestation, options, callback);
+            var success = await _fido.MakeNewCredentialAsync(request.Credential, options, callback);
             if (success.Result is null)
             {
                 throw new CredentialCreateException();
@@ -85,7 +90,8 @@ namespace TimeTrack.Server.Controllers
             {
                 SignatureCounter = success.Result.Counter,
                 RegDate = DateTime.Now,
-                AaGuid = success.Result.Aaguid
+                AaGuid = success.Result.Aaguid,
+                Name = request.Name,
             };
             _context.UserCredentials.Add(newCredential);
             await _context.SaveChangesAsync();
@@ -95,13 +101,38 @@ namespace TimeTrack.Server.Controllers
         [HttpGet("{credId}")]
         public async Task<ActionResult<UserCredential>> Show(int credId)
         {
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var credential = await _context.UserCredentials.Where(c => c.UserId == userId && c.Id == credId).FirstOrDefaultAsync();
+            var credential = await Find(credId);
             if (credential is null)
             {
                 return NotFound();
             }
             return credential;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Authenticator>>> Index()
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return await _context.UserCredentials.Where(c => c.UserId == userId).Select(c => new Authenticator() { Name = c.Name, Registered = c.RegDate, Id = c.Id }).ToListAsync();
+        }
+
+        [HttpDelete("{credId}")]
+        public async Task<ActionResult> Delete(int credId)
+        {
+            var credential = await Find(credId);
+            if (credential is null)
+            {
+                return NotFound();
+            }
+            _context.Remove(credential);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        private async Task<UserCredential?> Find(int credId)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return await _context.UserCredentials.Where(c => c.UserId == userId && c.Id == credId).FirstOrDefaultAsync();
         }
     }
 }
