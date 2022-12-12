@@ -15,7 +15,7 @@
     <DataAnnotationsValidator />
     <MudTextField Label="Name" @bind-Value="model.Name" Required />
     <MudTextField Label="Email" InputType="InputType.Email" @bind-Value="model.Email" Required />
-    <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
+    <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required HelperText="At least 12 characters, mixed case, at least one number." />
     <MudTextField Label="Confirm Password" InputType="InputType.Password" @bind-Value="model.ConfirmPassword" Required />
     <ValidationSummary />
     <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>

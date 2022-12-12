@@ -37,6 +37,7 @@ namespace TimeTrack
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequiredLength = 12;
+                options.Password.RequireNonAlphanumeric = false;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
@@ -57,11 +58,13 @@ namespace TimeTrack
                 };
             });
 
+            var fidoSection = builder.Configuration.GetSection("Fido2");
+            var origins = fidoSection.GetSection("Origins").Get<string[]>();
             builder.Services.AddFido2(opt =>
             {
-                opt.ServerDomain = "localhost";
+                opt.ServerDomain = fidoSection["ServerName"];
                 opt.ServerName = "Time Tracker";
-                opt.Origins = new() { "https://localhost:7117" };
+                opt.Origins = origins.ToHashSet();
             });
 
             var app = builder.Build();
