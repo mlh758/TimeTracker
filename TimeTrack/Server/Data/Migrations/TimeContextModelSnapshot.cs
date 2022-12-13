@@ -34,7 +34,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("ClientActivitiesId");
 
-                    b.ToTable("ActivityAssessment");
+                    b.ToTable("ActivityAssessment", (string)null);
                 });
 
             modelBuilder.Entity("CategoryClient", b =>
@@ -49,7 +49,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("DisabledClientsId");
 
-                    b.ToTable("CategoryClient");
+                    b.ToTable("CategoryClient", (string)null);
                 });
 
             modelBuilder.Entity("ClientGroup", b =>
@@ -64,7 +64,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("GroupsId");
 
-                    b.ToTable("ClientGroup");
+                    b.ToTable("ClientGroup", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -232,7 +232,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("ScheduleId");
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Assessment", b =>
@@ -250,7 +250,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Assessments");
+                    b.ToTable("Assessments", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Category", b =>
@@ -270,7 +270,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Client", b =>
@@ -344,7 +344,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.ClientCustomDisability", b =>
@@ -359,7 +359,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ClientCustomDisability");
+                    b.ToTable("ClientCustomDisability", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.CustomCategory", b =>
@@ -385,7 +385,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CustomCategories");
+                    b.ToTable("CustomCategories", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Group", b =>
@@ -402,7 +402,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.Schedule", b =>
@@ -430,7 +430,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.User", b =>
@@ -540,7 +540,7 @@ namespace TimeTrack.Server.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserCredentials");
+                    b.ToTable("UserCredentials", (string)null);
                 });
 
             modelBuilder.Entity("ActivityAssessment", b =>

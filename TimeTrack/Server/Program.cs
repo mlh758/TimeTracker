@@ -59,12 +59,11 @@ namespace TimeTrack
             });
 
             var fidoSection = builder.Configuration.GetSection("Fido2");
-            var origins = fidoSection.GetSection("Origins").Get<string[]>();
             builder.Services.AddFido2(opt =>
             {
                 opt.ServerDomain = fidoSection["ServerName"];
                 opt.ServerName = "Time Tracker";
-                opt.Origins = origins.ToHashSet();
+                opt.Origins = new HashSet<string>() { fidoSection["Origin"] };
             });
 
             var app = builder.Build();
@@ -74,7 +73,6 @@ namespace TimeTrack
             {
                 app.UseWebAssemblyDebugging();
                 Server.Data.Seed.BasicData.Seed(dbConnectionString);
-
             }
             else
             {
@@ -82,7 +80,6 @@ namespace TimeTrack
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseSession();
             app.UseHttpsRedirection();
 

@@ -31,5 +31,14 @@
     <ProjectReference Include="..\Shared\TimeTrack.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\Seed\assessments.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\Seed\categories.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>
