@@ -15,50 +15,66 @@
 <PageTitle>Login</PageTitle>
 
 <MudText Typo="Typo.h1">Login</MudText>
-@if (notFoundError)
+@if (badLoginError)
 {
-    <MudAlert Severity="Severity.Warning" ShowCloseIcon CloseIconClicked="@(() => notFoundError = false)">No account found for this email. Do you need to <MudLink Href="/register">register?</MudLink></MudAlert>
+    <MudAlert Severity="Severity.Warning" ShowCloseIcon CloseIconClicked="@(() => badLoginError = false)">The username or password is incorrect. Do you need to <MudLink Href="/register">register?</MudLink></MudAlert>
 }
 
-<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
-    <DataAnnotationsValidator />
-    <MudTextField Label="Email" InputType="InputType.Email" @bind-Value="model.Email" Required />
-    @if (triedFido)
-    {
+@if (genericError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => genericError = false)">Something went wrong trying to log in. Please try again.</MudAlert>
+}
+
+@if (triedFido)
+{
+    <EditForm Model="@model" OnValidSubmit="AttemptPasswordLogin">
+        <DataAnnotationsValidator />
+        <MudTextField Label="Email" InputType="InputType.Email" InputMode="InputMode.email" @bind-Value="model.Email" Required />
+
         <MudTextField Label="Password" InputType="InputType.Password" @bind-Value="model.Password" Required />
         <ValidationSummary />
         <MudButton Disabled="@isLoading" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Login</MudButton>
-    }
-    else
-    {
-        <MudButton Disabled="@isLoading" OnClick="@AttemptFidoLogin" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Button" Class="mt-2">Continue</MudButton>
-    }
-</EditForm>
+    </EditForm>
+}
+else
+{
+    <EditForm Model="@model" OnSubmit="AttemptFidoLogin">
+        <MudTextField Label="Email" InputType="InputType.Email" InputMode="InputMode.email" @bind-Value="model.Email" Required />
+
+        <MudButton Disabled="@isLoading" Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Class="mt-2">Continue</MudButton>
+    </EditForm>
+}
 
 @code {
 
     LoginForm model = new LoginForm();
     private bool triedFido = false;
     private bool isLoading = false;
-    private bool notFoundError = false;
+    private bool genericError = false;
+    private bool badLoginError = false;
     private IJSObjectReference module;
 
-    async Task OnValidSubmit()
+    async Task AttemptPasswordLogin()
     {
         isLoading = true;
         try
         {
             await Auth.Login(model);
             NavigationManager.NavigateTo("/");
-        } catch (HttpRequestException e)
+        }
+        catch (HttpRequestException e)
         {
-            switch(e.StatusCode)
+            switch (e.StatusCode)
             {
-                case System.Net.HttpStatusCode.NotFound:
-                    notFoundError = true;
+                case System.Net.HttpStatusCode.Forbidden:
+                    badLoginError = true;
+                    break;
+                case System.Net.HttpStatusCode.InternalServerError:
+                    genericError = true;
                     break;
             }
-        } finally
+        }
+        finally
         {
             isLoading = false;
         }

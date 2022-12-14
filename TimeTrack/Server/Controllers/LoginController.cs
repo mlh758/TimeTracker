@@ -37,7 +37,7 @@ namespace TimeTrack.Server.Controllers
             var user = await _signIn.UserManager.FindByEmailAsync(request.Email);
             if (user is null)
             {
-                return NotFound();
+                return Forbid();
             }
             var result = await _signIn.PasswordSignInAsync(user, request.Password, true, true);
             if (result.Succeeded)
