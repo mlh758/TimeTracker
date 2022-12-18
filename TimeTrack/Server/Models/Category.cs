@@ -22,6 +22,9 @@ namespace TimeTrack.Server.Models
 
         public List<Client>? RaceClients { get; set; }
 
+        public User? User { get; set; }
+        public string? UserId { get; set; }
+
         public Category(string name, CategoryType type)
         {
             Name = name;

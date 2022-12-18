@@ -31,7 +31,6 @@ namespace TimeTrack.Server.Controllers.Tests
             return new M.Client(abbreviation)
             {
                 Disabilities = new List<M.Category>(),
-                CustomDisabilities = new List<M.CustomCategory>(),
                 Age = category,
                 Race = category,
                 Gender = category,
@@ -52,19 +51,6 @@ namespace TimeTrack.Server.Controllers.Tests
             task.Wait();
             Assert.IsNotNull(task.Result.Value);
             Assert.AreEqual(task.Result.Value.Abbreviation, "HELLO");
-        }
-
-        [TestMethod()]
-        public void GetClientTest_WithCustomCategory()
-        {
-            var mock = new Mock<IClientRepository>();
-            var client = BuildClient();
-            client.CustomAge = new M.CustomCategory("DOG", CategoryType.Age, "user");
-            mock.Setup(repo => repo.Find("user", 1)).ReturnsAsync(client);
-            var controller = Controller(mock.Object);
-            var task = controller.GetClient(1);
-            task.Wait();
-            Assert.AreEqual("DOG", task.Result.Value!.Age!.Name);
         }
 
         [TestMethod()]

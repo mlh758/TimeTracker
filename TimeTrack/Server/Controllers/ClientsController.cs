@@ -44,12 +44,12 @@ namespace TimeTrack.Server.Controllers
             return new VM.Client()
             {
                 Abbreviation = client.Abbreviation,
-                Age = client.CustomAge is null ? client.Age! : client.CustomAge,
-                Race = client.CustomRace is null ? client.Race! : client.CustomRace,
-                Gender = client.CustomGender is null ? client.Gender! : client.CustomGender,
-                Setting = client.CustomSetting is null ? client.Setting! : client.CustomSetting,
-                SexualOrientation = client.CustomSexualOrientation is null ? client.SexualOrientation! : client.CustomSexualOrientation,
-                Disabilities = client.CustomDisabilities!.Select(d => (VM.Category)d).Concat(client.Disabilities!.Select(d => (VM.Category)d)).ToList(),
+                Age = client.Age!,
+                Race = client.Race!,
+                Gender = client.Gender!,
+                Setting = client.Setting!,
+                SexualOrientation = client.SexualOrientation!,
+                Disabilities = client.Disabilities!.Select(d => (VM.Category)d).ToList(),
             };
 
         }

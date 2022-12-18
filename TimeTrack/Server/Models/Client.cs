@@ -25,19 +25,6 @@ namespace TimeTrack.Server.Models
         public Category? Gender { get; set; }
         public List<Category>? Disabilities { get; set; }
 
-        public long? CustomAgeId { get; set; }
-        public CustomCategory? CustomAge { get; set; }
-        public long? CustomSettingId { get; set; }
-        public CustomCategory? CustomSetting { get; set; }
-        public long? CustomSexualOrientationId { get; set; }
-        public CustomCategory? CustomSexualOrientation { get; set; }
-        public long? CustomRaceId { get; set; }
-        public CustomCategory? CustomRace { get; set; }
-        public long? CustomGenderId { get; set; }
-        public CustomCategory? CustomGender { get; set; }
-        public List<CustomCategory>? CustomDisabilities { get; set; }
-        public List<ClientCustomDisability>? ClientCustomDisabilities { get; set; }
-
         public string UserId { get; set; }
         public User? User { get; set; }
 

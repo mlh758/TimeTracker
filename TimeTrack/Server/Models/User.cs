@@ -7,7 +7,7 @@ namespace TimeTrack.Server.Models
     public class User : IdentityUser
     {
         public string Name { get; set; } = string.Empty;
-        public IEnumerable<CustomCategory>? CustomCategories { get; set; }
+        public IEnumerable<Category>? Categories { get; set; }
         public IEnumerable<UserCredential>? Credentials { get; set; }
 
     }

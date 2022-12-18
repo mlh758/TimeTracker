@@ -64,7 +64,6 @@
     public EventCallback<NewClientForm> OnSubmit { get; set; }
 
     VM.Category[]? categories;
-    VM.Category[]? customCategories;
 
     async Task OnValidSubmit()
     {
@@ -73,14 +72,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var categoryTask = Http.GetFromJsonAsync<VM.Category[]>("/api/Categories");
-        var customTask = Http.GetFromJsonAsync<VM.Category[]>("/api/CustomCategories");
-        categories = await categoryTask;
-        customCategories = await customTask;
+        categories = await Http.GetFromJsonAsync<VM.Category[]>("/api/Categories");
     }
 
     IEnumerable<VM.Category> ofType(CategoryType t)
     {
-        return customCategories!.Where(c => c.Type == t).Concat(categories!.Where(c => c.Type == t));
+        return categories!.Where(c => c.Type == t);
     }
 }

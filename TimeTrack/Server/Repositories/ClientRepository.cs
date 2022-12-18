@@ -35,7 +35,7 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<M.Client> Create(string userId, NewClientForm clientData)
         {
-            var newClient = new M.Client(clientData.Abbreviation!) {  UserId= userId };
+            var newClient = new M.Client(clientData.Abbreviation!) { UserId = userId };
             await AssignCategories(newClient, clientData);
             _context.Add(newClient);
             await _context.SaveChangesAsync();
@@ -62,66 +62,13 @@ namespace TimeTrack.Server.Repositories
         // safety.
         private async Task AssignCategories(M.Client client, NewClientForm form)
         {
-            var otherMap = await _context.Categories.Where(c => c.Name == "Other" || c.Name == "Unknown").ToDictionaryAsync(c => c.Type, c => c.Id);
-            if (form.Race is not null && form.Race.IsCustom)
-            {
-                client.RaceId = otherMap[CategoryType.Race];
-                client.CustomRaceId = form.Race.Id;
-            }
-            else
-            {
-                client.RaceId = form.Race!.Id;
-            }
- 
-            if (form.Gender is not null && form.Gender.IsCustom)
-            {
-                client.GenderId = otherMap[CategoryType.Gender];
-                client.CustomGenderId = form.Gender.Id;
-            }
-            else
-            {
-                client.GenderId = form.Gender!.Id;
-            }
-
-            if (form.SexualOrientation is not null && form.SexualOrientation.IsCustom)
-            {
-                client.SexualOrientationId = otherMap[CategoryType.SexualOrientation];
-                client.CustomSexualOrientationId = form.SexualOrientation.Id;
-            }
-            else
-            {
-                client.SexualOrientationId = form.SexualOrientation!.Id;
-            }
-
-            if (form.Setting is not null && form.Setting.IsCustom)
-            {
-                client.SettingId = otherMap[CategoryType.TreatmentSetting];
-                client.CustomSettingId = form.Setting.Id;
-            }
-            else
-            {
-                client.SettingId = form.Setting!.Id;
-            }
-
-            if (form.Age is not null && form.Age.IsCustom)
-            {
-                client.AgeId = otherMap[CategoryType.Age];
-                client.CustomAgeId = form.Age.Id;
-            }
-            else
-            {
-                client.AgeId = form.Age!.Id;
-            }
-            await AssignDisabilities(client, form);
-        }
-
-        private async Task AssignDisabilities(M.Client client, NewClientForm form)
-        {
-            var disabilities = form.Disabilities.Where(d => !d.IsCustom).Select(d => d.Id).ToList();
+            client.RaceId = form.Race!.Id;
+            client.GenderId = form.Gender!.Id;
+            client.SexualOrientationId = form.SexualOrientation!.Id;
+            client.SettingId = form.Setting!.Id;
+            client.AgeId = form.Age!.Id;
+            var disabilities = form.Disabilities.Select(d => d.Id).ToList();
             client.Disabilities = await _context.Categories.Where(c => c.Type == CategoryType.Disability && disabilities.Contains(c.Id)).ToListAsync();
-
-            var customDisabilities = form.Disabilities.Where(d => d.IsCustom).Select(d => d.Id).ToList();
-            client.CustomDisabilities = await _context.CustomCategories.Where(c => c.Type == CategoryType.Disability && customDisabilities.Contains(c.Id)).ToListAsync();
         }
 
         public async Task<M.Client?> Find(string userId, long clientId)
@@ -130,15 +77,10 @@ namespace TimeTrack.Server.Repositories
             .Clients
                 .Where(c => c.UserId == userId && c.Id == clientId)
                 .Include(c => c.Age)
-                .Include(c => c.CustomAge)
                 .Include(c => c.Race)
-                .Include(c => c.CustomRace)
                 .Include(c => c.Gender)
-                .Include(c => c.CustomGender)
                 .Include(c => c.Setting)
-                .Include(c => c.CustomSetting)
                 .Include(c => c.SexualOrientation)
-                .Include(c => c.CustomSexualOrientation)
                 .FirstOrDefaultAsync();
             if (client is null)
             {
@@ -146,7 +88,6 @@ namespace TimeTrack.Server.Repositories
             }
 
             await _context.Entry(client).Collection(c => c.Disabilities!).LoadAsync();
-            await _context.Entry(client).Collection(c => c.CustomDisabilities!).LoadAsync();
             return client;
         }
 
