@@ -16,12 +16,12 @@
         <DataAnnotationsValidator />
         <MudTextField Label="Name" @bind-Value="Model.Name" />
         <MudSelect T="CategoryType" Label="Categorization" @bind-Value="Model.Type">
-            <MudSelectItem Value="CategoryType.Age">Age</MudSelectItem>
-            <MudSelectItem Value="CategoryType.Gender">Gender</MudSelectItem>
-            <MudSelectItem Value="CategoryType.Race">Race</MudSelectItem>
-            <MudSelectItem Value="CategoryType.SexualOrientation">Sexual Orientation</MudSelectItem>
-            <MudSelectItem Value="CategoryType.TreatmentSetting">Treatment Setting</MudSelectItem>
-            <MudSelectItem Value="CategoryType.Disability">Disability</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Age">@CategoryDisplay.Show(CategoryType.Age)</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Gender">@CategoryDisplay.Show(CategoryType.Gender)</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Race">@CategoryDisplay.Show(CategoryType.Race)</MudSelectItem>
+            <MudSelectItem Value="CategoryType.SexualOrientation">@CategoryDisplay.Show(CategoryType.SexualOrientation)</MudSelectItem>
+            <MudSelectItem Value="CategoryType.TreatmentSetting">@CategoryDisplay.Show(CategoryType.TreatmentSetting)</MudSelectItem>
+            <MudSelectItem Value="CategoryType.Disability">@CategoryDisplay.Show(CategoryType.Disability)</MudSelectItem>
         </MudSelect>
         <ValidationSummary />
     </MudStack>

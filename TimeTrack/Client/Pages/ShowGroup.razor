@@ -1,5 +1,6 @@
 ﻿@page "/groups/{Id:int}"
 @using VM = TimeTrack.Shared.ViewModels
+@using TimeTrack.Shared.Enums
 @using TimeTrack.Client.Components
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
@@ -8,25 +9,38 @@
 
 @if (loadError)
 {
-        <MudAlert Severity="Severity.Error">Unable to load this group.</MudAlert>
+    <MudAlert Severity="Severity.Error">Unable to load this group.</MudAlert>
 }
 
 @if (notFound)
 {
-        <MudAlert Severity="Severity.Warning">Unable to find this group. Check the My Groups page.</MudAlert>
+    <MudAlert Severity="Severity.Warning">Unable to find this group. Check the My Groups page.</MudAlert>
 }
 
 @if (group is VM.Group groupValue)
 {
-        <MudText Typo="Typo.h2">@groupValue.Name</MudText>
+    <MudText Typo="Typo.h2">@groupValue.Name</MudText>
 
-        <MudText Class="my-3">Clients:</MudText>
-        <ClientList Clients="@groupValue.Clients" />
+    <MudSelect T="CategoryType" Label="Demographics Category" Value="@demographicsFor" ValueChanged="@UpdateChart">
+        <MudSelectItem Value="CategoryType.Age">@CategoryDisplay.Show(CategoryType.Age)</MudSelectItem>
+        <MudSelectItem Value="CategoryType.Gender">@CategoryDisplay.Show(CategoryType.Gender)</MudSelectItem>
+        <MudSelectItem Value="CategoryType.Race">@CategoryDisplay.Show(CategoryType.Race)</MudSelectItem>
+        <MudSelectItem Value="CategoryType.SexualOrientation">@CategoryDisplay.Show(CategoryType.SexualOrientation)</MudSelectItem>
+        <MudSelectItem Value="CategoryType.TreatmentSetting">@CategoryDisplay.Show(CategoryType.TreatmentSetting)</MudSelectItem>
+        <MudSelectItem Value="CategoryType.Disability">@CategoryDisplay.Show(CategoryType.Disability)</MudSelectItem>
+    </MudSelect>
 
-        <div class="mt-2 d-flex justify-space-between">
-            <MudButton Variant="Variant.Outlined" Href="@($"/groups/{Id}/edit")">Edit</MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@Delete">Delete</MudButton>
-        </div>
+    <div class="my-2">
+        <MudChart ChartType="ChartType.Pie" InputData="@chartData" InputLabels="@chartLabels" Width="300px" Height="300px" />
+    </div>
+
+    <MudText Class="my-3">Clients:</MudText>
+    <ClientList Clients="@groupValue.Clients" />
+
+    <div class="mt-2 d-flex justify-space-between">
+        <MudButton Variant="Variant.Outlined" Href="@($"/groups/{Id}/edit")">Edit</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@Delete">Delete</MudButton>
+    </div>
 }
 
 @code {
@@ -34,8 +48,11 @@
     public int Id { get; set; }
 
     VM.Group? group;
+    CategoryType demographicsFor;
     bool loadError = false;
     bool notFound = false;
+    double[] chartData = { };
+    string[] chartLabels = { };
 
 
     protected override async Task OnInitializedAsync()
@@ -43,6 +60,7 @@
         try
         {
             group = await Http.GetFromJsonAsync<VM.Group>($"/api/Groups/{Id}");
+            UpdateChart(demographicsFor);
         }
         catch (HttpRequestException e)
         {
@@ -54,6 +72,25 @@
             {
                 loadError = true;
             }
+        }
+    }
+
+    private void UpdateChart(CategoryType type)
+    {
+        demographicsFor = type;
+        if (group.HasValue)
+        {
+            var demoItems = group.Value.Demographics.Where(k => k.ContainsKey(type)).Select(k => k[type]).ToList();
+            var newChartData = demoItems.Select(item => (double)item.Count).ToArray();
+            var newChartLabels = demoItems.Select(item => item.Name).ToArray();
+            var totalClients = (int)newChartData.Sum();
+            if (totalClients < group.Value.Clients.Length)
+            {
+                newChartData = newChartData.Append(group.Value.Clients.Length - totalClients).ToArray();
+                newChartLabels = newChartLabels.Append("None").ToArray();
+            }
+            chartData = newChartData;
+            chartLabels = newChartLabels;
         }
     }
 

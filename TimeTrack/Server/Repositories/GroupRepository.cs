@@ -49,7 +49,7 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Group?> Find(string userId, long id)
         {
-            return await FindById(userId, id).Include(g => g.Clients).FirstOrDefaultAsync();
+            return await FindById(userId, id).Include("Clients.Disabilities").FirstOrDefaultAsync();
         }
 
         public async Task<Group?> Update(string userId, long id, GroupForm form)
