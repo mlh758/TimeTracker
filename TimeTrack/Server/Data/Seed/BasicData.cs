@@ -15,6 +15,20 @@ namespace TimeTrack.Server.Data.Seed
             context.SaveChanges();
         }
 
+        public static void Seed(string connectionString, string workingDirectory)
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(workingDirectory);
+                Seed(connectionString);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(currentDir);
+            }
+        }
+
         // Assessments pulled from Buros: https://buros.org/tests-reviewed-mental-measurements-yearbook-series
         private static void SeedAssessments(TimeContext context)
         {
@@ -35,7 +49,7 @@ namespace TimeTrack.Server.Data.Seed
         // AAPI 2020-2021 Application
         private static void SeedCategories(TimeContext context)
         {
-            if(context.Categories.Any())
+            if (context.Categories.Any())
             {
                 return;
             }
@@ -51,7 +65,7 @@ namespace TimeTrack.Server.Data.Seed
 
         private static CategoryType GetCategory(string typeName)
         {
-            switch(typeName)
+            switch (typeName)
             {
                 case "Age":
                     return CategoryType.Age;

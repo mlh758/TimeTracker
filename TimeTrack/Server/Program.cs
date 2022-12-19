@@ -72,7 +72,18 @@ namespace TimeTrack
             if (app.Environment.IsDevelopment())
             {
                 app.UseWebAssemblyDebugging();
-                Server.Data.Seed.BasicData.Seed(dbConnectionString);
+                // Set a working directory for seeding since in production on Azure App Service it doesn't match up like it should.
+                // This is sitting under dev mode because 99% of the time we don't need to reseed prod so why waste the startup time.
+                // Find a better way to trigger a seed later...
+                var workingDir = builder.Configuration["WorkingDirectory"];
+                if (workingDir is not null)
+                {
+                    Server.Data.Seed.BasicData.Seed(dbConnectionString, workingDir);
+                }
+                else
+                {
+                    Server.Data.Seed.BasicData.Seed(dbConnectionString);
+                }
             }
             else
             {
