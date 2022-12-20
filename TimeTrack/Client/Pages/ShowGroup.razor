@@ -81,16 +81,8 @@
         if (group.HasValue)
         {
             var demoItems = group.Value.Demographics.Where(k => k.ContainsKey(type)).Select(k => k[type]).ToList();
-            var newChartData = demoItems.Select(item => (double)item.Count).ToArray();
-            var newChartLabels = demoItems.Select(item => item.Name).ToArray();
-            var totalClients = (int)newChartData.Sum();
-            if (totalClients < group.Value.Clients.Length)
-            {
-                newChartData = newChartData.Append(group.Value.Clients.Length - totalClients).ToArray();
-                newChartLabels = newChartLabels.Append("None").ToArray();
-            }
-            chartData = newChartData;
-            chartLabels = newChartLabels;
+            chartData = demoItems.Select(item => (double)item.Count).ToArray();
+            chartLabels = demoItems.Select(item => item.Name).ToArray();
         }
     }
 

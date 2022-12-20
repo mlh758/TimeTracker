@@ -38,6 +38,7 @@ namespace TimeTrack.Server.Services
         // Assumes that the group's clients are preloaded along with those clients' disabilities
         public async Task<Dictionary<VM.Category, int>> Gather(Group group, string userId)
         {
+            var noDisability = new VM.Category("None") { Id = -1, Type = CategoryType.Disability };
             var categories = await GetCategories(userId);
             var counts = new CategoryCounter();
             foreach (var client in group.Clients!)
@@ -47,6 +48,10 @@ namespace TimeTrack.Server.Services
                 counts.Add(categories[client.SexualOrientationId]);
                 counts.Add(categories[client.GenderId]);
                 counts.Add(categories[client.SettingId]);
+                if (client.Disabilities!.Count == 0)
+                {
+                    counts.Add(noDisability);
+                }
                 foreach (var disability in client.Disabilities!)
                 {
                     counts.Add(disability);
