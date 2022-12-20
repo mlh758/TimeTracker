@@ -36,13 +36,14 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Activity?> Find(string userId, int Id)
         {
-            return await ClientUserActivity(userId).Where(a => a.Id == Id).FirstOrDefaultAsync();
+            return await ClientUserActivity(userId).Concat(GroupUserActivity(userId)).Where(a => a.Id == Id).FirstOrDefaultAsync();
         }
 
         public async Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end)
         {
-            var activity = ClientUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client);
-            return await activity.Cast<Activity>().ToListAsync();
+            var activity = await ClientUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client).Select(a => a).ToListAsync();
+            var groups = await GroupUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Group).Select(a => a).ToListAsync();
+            return activity.Concat(groups).OrderBy(a => a.Start).ToList();
         }
 
         public async Task<int> CreateScheduled(Activity activity)
@@ -70,6 +71,14 @@ namespace TimeTrack.Server.Repositories
             return from cl in _context.Clients
                    join a in _context.Activities on cl.Id equals a.ClientId
                    where cl.UserId == userId
+                   select a;
+        }
+
+        private IQueryable<Activity> GroupUserActivity(string userId)
+        {
+            var groups = _context.Groups.Where(g => g.Clients!.Any(c => c.UserId == userId));
+            return from a in _context.Activities
+                   join g in groups on a.GroupId equals g.Id
                    select a;
         }
     }

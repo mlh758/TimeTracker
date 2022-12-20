@@ -11,12 +11,20 @@
 
     @if (loading)
     {
-        <MudSkeleton Width="100%" Height="2rem" />
-        <MudSkeleton Width="100%" Height="2rem" />
+        <MudSkeleton Width="100%" Height="4.2rem" />
+        <MudSkeleton Width="100%" Height="4.2rem" />
+        <MudSkeleton Width="100%" Height="4.2rem" />
     }
     else
     {
-        <MudAutocomplete Required T="ActivityOwner" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
+        <MudSwitch T="bool" Label="This is a group activity" Checked="@isGroup" CheckedChanged="@OnIsGroupChange" Color="Color.Primary" />
+        @if (isGroup)
+        {   
+            <MudAutocomplete T="ActivityOwner" Label="Choose Group" @bind-Value="Model.Group" SearchFunc="@SearchGroups" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
+        } else
+        {
+        <MudAutocomplete T="ActivityOwner" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
+        }
         <MudAutocomplete T="Assessment"
                      @ref="assessmentSearch"
                      Label="Choose Assessments"
@@ -58,9 +66,18 @@
     public EventCallback<ActivityForm> OnSubmit { get; set; }
 
     private ActivityOwner[]? clients;
+    private ActivityOwner[]? groups;
     private Assessment[]? assessments;
     private bool loading = true;
+    private bool isGroup = false;
     private MudAutocomplete<Assessment>? assessmentSearch;
+
+    private void OnIsGroupChange(bool isChecked)
+    {
+        Model.Client = null;
+        Model.Group = null;
+        isGroup = isChecked;
+    }
 
     private void OnChangeSchedule(bool isChecked)
     {
@@ -108,6 +125,22 @@
         return clients.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
+    private async Task<IEnumerable<ActivityOwner>> SearchGroups(string text)
+    {
+        await Task.Delay(0);
+        if (groups is null)
+        {
+            return new List<ActivityOwner>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return groups;
+        }
+
+        return groups.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
     private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
     {
         await Task.Delay(0);
@@ -134,8 +167,10 @@
     protected override async Task OnInitializedAsync()
     {
         var clientsTask = Http.GetFromJsonAsync<ActivityOwner[]>("/api/Clients");
+        var groupsTask = Http.GetFromJsonAsync<ActivityOwner[]>("/api/Groups");
         assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
         clients = await clientsTask;
+        groups = await groupsTask;
         loading = false;
     }
 }

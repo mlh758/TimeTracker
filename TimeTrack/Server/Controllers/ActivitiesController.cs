@@ -19,11 +19,13 @@ namespace TimeTrack.Server.Controllers
         private readonly IActivityRepository _activityRepo;
         private readonly IAssessmentRepository _assessmentRepo;
         private readonly IClientRepository _clientRepo;
-        public ActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository, IClientRepository clientRepository)
+        private readonly IGroupRepository _groupRepository;
+        public ActivitiesController(IActivityRepository activityRepo, IAssessmentRepository assessmentRepository, IClientRepository clientRepository, IGroupRepository groupRepository)
         {
             _activityRepo = activityRepo;
             _assessmentRepo = assessmentRepository;
             _clientRepo = clientRepository;
+            _groupRepository = groupRepository;
         }
 
         [HttpGet("{id}")]
@@ -60,23 +62,34 @@ namespace TimeTrack.Server.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(ActivityForm body)
         {
-            if (body.Client is null || body.Assessments is null || !ModelState.IsValid)
+            if (body.Assessments is null || !ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-            // verify the client that is having activity generated belongs to the current user
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var client = await _clientRepo.Find(userId, body.Client.Id);
-            if (client is null)
+            if (body.Client is not null)
             {
-                return NotFound();
+                // verify the client that is having activity generated belongs to the current user
+                var client = await _clientRepo.Find(userId, body.Client.Id);
+                if (client is null)
+                {
+                    return NotFound("Unable to locate client");
+                }
+            }
+            if (body.Group is not null)
+            {
+                var group = await _groupRepository.Find(userId, body.Group.Id);
+                if (group is null)
+                {
+                    return NotFound("Unable to locate group");
+                }
             }
             var assessments = await _assessmentRepo.FindById(body.Assessments.Select(el => el.Id));
             var newActivity = ActivityFactory.FromForm(body, assessments);
             if (body.Schedule is null)
             {
                 newActivity = await _activityRepo.Create(newActivity);
-                return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, newActivity);
+                return CreatedAtAction(nameof(GetClientActivity), new { id = newActivity.Id }, null);
 
             }
             else
