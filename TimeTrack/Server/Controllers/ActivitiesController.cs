@@ -8,6 +8,7 @@ using VM = TimeTrack.Shared.ViewModels;
 using TimeTrack.Server.Repositories;
 using System.Linq;
 using TimeTrack.Shared;
+using TimeTrack.Shared.Enums;
 
 namespace TimeTrack.Server.Controllers
 {
@@ -51,11 +52,12 @@ namespace TimeTrack.Server.Controllers
             var activities = await _activityRepo.ForUserWithin(userId, startAt, endAt);
             return activities.Select(a => new VM.SummaryActivity()
             {
+                Id = a.Id,
                 Start = a.Start,
                 Duration = a.Duration,
                 Owner = a.GetOwner(),
                 Assessments = a.Assessments!.Select(a => new VM.Assessment { Name = a.Name }).ToList(),
-
+                IsScheduled = a.ScheduleId.HasValue,
             }).ToList();
         }
 
@@ -98,6 +100,14 @@ namespace TimeTrack.Server.Controllers
                 await _activityRepo.CreateScheduled(newActivity);
                 return CreatedAtAction(nameof(GetActivities), null);
             }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(long id, ActivityDelete mode)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _activityRepo.Delete(userId, id, mode);
+            return Ok();
         }
 
     }

@@ -1,6 +1,10 @@
 ﻿@using TimeTrack.Client.Services
 @using TimeTrack.Shared.ViewModels
+@using TimeTrack.Shared.Enums
+@using TimeTrack.Client.Components
 @inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudText Typo="Typo.h1">Recent Activity</MudText>
 <div class="container">
@@ -24,13 +28,23 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                            <MudList>
-                                @foreach(var assessment in activity.Assessments!)
-                                {
-                                    <MudListItem Text="@assessment.Name" />
-                                }
-                            </MudList>
-                        </MudCardContent>
+                        <MudList>
+                            @foreach (var assessment in activity.Assessments!)
+                            {
+                                <MudListItem Text="@assessment.Name" />
+                            }
+                        </MudList>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <div class="action-buttons-container">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.This))" />
+                            <div>
+                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Future))">Future Activity</MudButton>
+                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Schedule))">This Schedule</MudButton>
+                            </div>
+                        </div>
+
+                    </MudCardActions>
                 </MudCard>
             }
         </MudStack>
@@ -76,38 +90,78 @@
         await GetActivities();
     }
 
+    private async Task DeleteActivity(long Id, ActivityDelete mode)
+    {
+        var parameters = new DialogParameters();
+        switch (mode)
+        {
+            case ActivityDelete.This:
+                parameters.Add("Message", "Do you really want to delete this activity?");
+                break;
+            case ActivityDelete.Future:
+                parameters.Add("Message", "You are about to delete this and future activities in this schedule. Are you sure?");
+                break;
+            case ActivityDelete.Schedule:
+                parameters.Add("Message", "You are about to delete all activities from this schedule, including past activity. Are you sure?");
+                break;
+        }
+        var dialog = DialogService.Show<ConfirmDeleteDialog>("Delete Activity", parameters);
+        var confirmed = await dialog.Result;
+        if (!confirmed.Cancelled)
+        {
+            var result = await Http.DeleteAsync($"/api/activities/{Id}?mode={mode}");
+            if (!result.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Unable to delete activity", Severity.Error);
+            }
+            else
+            {
+                await GetActivities();
+            }
+        }
+
+
+    }
     private async Task GetActivities()
     {
-        try {
+        try
+        {
             var newActivity = await Http.GetFromJsonAsync<SummaryActivity[]>($"/api/activities?within={selectedDate.ToString("O")}");
             if (newActivity is not null)
             {
                 activity = newActivity;
                 todayActivity = FilterActivity(selectedDate);
             }
-        } catch (HttpRequestException) {
+        }
+        catch (HttpRequestException)
+        {
             showError = true;
         }
-        
+
     }
 
-    private string ButtonClass(DateTime date) {
+    private string ButtonClass(DateTime date)
+    {
         var classes = HasActivity(date) ? "teal lighten-4" : "white-bg";
-        if (date.Date == selectedDate.Date) {
+        if (date.Date == selectedDate.Date)
+        {
             classes = classes + " selected-day";
         }
         return classes;
     }
 
-    private bool HasActivity(DateTime date) {
+    private bool HasActivity(DateTime date)
+    {
         return activity.Any(a => a.Start.Date == date.Date);
     }
 
-    private SummaryActivity[] FilterActivity(DateTime date) {
+    private SummaryActivity[] FilterActivity(DateTime date)
+    {
         return activity.Where(a => a.Start.Date == date.Date).ToArray();
     }
 
-    private void SetSelectedDay(DateTime date) {
+    private void SetSelectedDay(DateTime date)
+    {
         selectedDate = date;
         todayActivity = FilterActivity(date);
     }

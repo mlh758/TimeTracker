@@ -29,6 +29,7 @@ namespace TimeTrack.Server.Models
         public Group? Group { get; set; }
 
         public Schedule? Schedule { get; set; }
+        public int? ScheduleId { get; set; }
 
         public List<Assessment>? Assessments { get; set; }
         public Activity() { }

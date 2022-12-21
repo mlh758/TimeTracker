@@ -1,20 +1,20 @@
 ﻿using TimeTrack.Server.Data;
 using TimeTrack.Server.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TimeTrack.Server.Services;
+using TimeTrack.Shared.Enums;
 
 namespace TimeTrack.Server.Repositories
 {
     public interface IActivityRepository
     {
         public Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end);
-        public Task<Activity?> Find(string userId, int Id);
+        public Task<Activity?> Find(string userId, long Id);
         public Task<Activity> Create(Activity activity);
 
         public Task<int> CreateScheduled(Activity activity);
+        public Task Delete(string userId, long Id, ActivityDelete mode);
     }
     public class ActivityRepository : IActivityRepository
     {
@@ -34,7 +34,7 @@ namespace TimeTrack.Server.Repositories
         }
 
 
-        public async Task<Activity?> Find(string userId, int Id)
+        public async Task<Activity?> Find(string userId, long Id)
         {
             return await ClientUserActivity(userId).Concat(GroupUserActivity(userId)).Where(a => a.Id == Id).FirstOrDefaultAsync();
         }
@@ -80,6 +80,31 @@ namespace TimeTrack.Server.Repositories
             return from a in _context.Activities
                    join g in groups on a.GroupId equals g.Id
                    select a;
+        }
+
+        public async Task Delete(string userId, long Id, ActivityDelete mode)
+        {
+            var saved = await Find(userId, Id);
+            if (saved is null)
+            {
+                return;
+            }
+            if (!saved.ScheduleId.HasValue || mode == ActivityDelete.This)
+            {
+                _context.Activities.Remove(saved);
+                await _context.SaveChangesAsync();
+                return;
+            }
+            IQueryable<Activity> query;
+            if (mode == ActivityDelete.Future)
+            {
+                query = _context.Activities.Where(a => a.ScheduleId == saved.ScheduleId && a.Start >= saved.Start);
+            } else
+            {
+                query = _context.Activities.Where(a => a.ScheduleId == saved.ScheduleId);
+            }
+            _context.Activities.RemoveRange(query);
+            await _context.SaveChangesAsync();
         }
     }
 }
