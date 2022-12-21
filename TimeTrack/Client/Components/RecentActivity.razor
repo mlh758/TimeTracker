@@ -38,10 +38,13 @@
                     <MudCardActions>
                         <div class="action-buttons-container">
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.This))" />
-                            <div>
-                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Future))">Future Activity</MudButton>
-                                <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Schedule))">This Schedule</MudButton>
-                            </div>
+                            @if(activity.IsScheduled)
+                            {
+                                <div>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Future))">Future Activity</MudButton>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Schedule))">This Schedule</MudButton>
+                                </div>
+                            }
                         </div>
 
                     </MudCardActions>
