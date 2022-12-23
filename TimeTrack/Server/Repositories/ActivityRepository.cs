@@ -76,9 +76,9 @@ namespace TimeTrack.Server.Repositories
 
         private IQueryable<Activity> GroupUserActivity(string userId)
         {
-            var groups = _context.Groups.Where(g => g.Clients!.Any(c => c.UserId == userId));
             return from a in _context.Activities
-                   join g in groups on a.GroupId equals g.Id
+                   join g in _context.Groups on a.GroupId equals g.Id
+                   where g.UserId == userId
                    select a;
         }
 

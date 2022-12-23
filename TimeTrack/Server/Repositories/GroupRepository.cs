@@ -31,7 +31,7 @@ namespace TimeTrack.Server.Repositories
         public async Task<Group> Create(string userId, GroupForm form)
         {
             var clients = await LoadClients(userId, form);
-            var group = new Group() { Clients = clients, Name = form.Name! };
+            var group = new Group(userId) { Clients = clients, Name = form.Name! };
             _context.Groups.Add(group);
             await _context.SaveChangesAsync();
             return group;
@@ -67,7 +67,7 @@ namespace TimeTrack.Server.Repositories
 
         private IQueryable<Group> FindById(string userId, long id)
         {
-            return _context.Groups.Where(g => g.Id== id && g.Clients!.Any(c => c.UserId == userId));
+            return _context.Groups.Where(g => g.Id== id && g.UserId == userId);
         }
 
         private async Task<List<Models.Client>> LoadClients(string userId, GroupForm form)

@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
 namespace TimeTrack.Server.Models
 {
-    /*
-     * To the user, there isn't a practical difference between categories and custom
-     * categories. Instead of making them select Other and then one of their custom values
-     * the application combines them in drop downs and works it out on save.
-     */
+    [Index(nameof(UserId), nameof(Abbreviation), IsUnique = true)]
     public class Client
     {
         public long Id { get; set; }

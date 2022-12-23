@@ -49,6 +49,8 @@ namespace TimeTrack.Server.Data
             modelBuilder.Entity<Activity>().HasOne(c => c.Client).WithMany(c => c.Activities).HasForeignKey(c => c.ClientId).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Activity>().HasOne(c => c.Group).WithMany(c => c.Activities).HasForeignKey(c => c.GroupId).OnDelete(DeleteBehavior.ClientCascade);
 
+            modelBuilder.Entity<Group>().HasOne(c => c.User).WithMany(u => u.Groups).HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Models.Client>().HasMany(c => c.Disabilities).WithMany(c => c.DisabledClients);
             modelBuilder.Entity<Category>().HasMany(c => c.RaceClients).WithOne(c => c.Race).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Category>().HasMany(c => c.GenderedClients).WithOne(c => c.Gender).OnDelete(DeleteBehavior.Restrict);
