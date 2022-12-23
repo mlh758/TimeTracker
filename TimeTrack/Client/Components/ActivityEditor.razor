@@ -7,7 +7,7 @@
     <DataAnnotationsValidator />
 
     <MudTextField Required T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="Model.Start" />
-    <MudTextField Required T="int?" Label="Duration" HelperText="Session time in minutes" InputType="InputType.Number" @bind-Value="Model.Duration" />
+    <MudTextField Required T="decimal?" Label="Clinical Hours" InputType="InputType.Number" @bind-Value="Model.ClinicalHours" InputMode="InputMode.numeric" UserAttributes="@(new Dictionary<string, object>() { ["step"] = "0.25" })" />
 
     @if (loading)
     {

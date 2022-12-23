@@ -31,7 +31,7 @@ namespace TimeTrack.Server.Services
                 newActivity.Schedule = form.Schedule;
             }
             newActivity.Start = form.Start!.Value;
-            newActivity.Duration = form.Duration!.Value;
+            newActivity.ClinicalHours = form.ClinicalHours!.Value;
             newActivity.Assessments = selectedAssessments.ToList();
             return newActivity;
         }

@@ -54,7 +54,7 @@ namespace TimeTrack.Server.Controllers
             {
                 Id = a.Id,
                 Start = a.Start,
-                Duration = a.Duration,
+                ClinicalHours = a.ClinicalHours,
                 Owner = a.GetOwner(),
                 Assessments = a.Assessments!.Select(a => new VM.Assessment { Name = a.Name }).ToList(),
                 IsScheduled = a.ScheduleId.HasValue,

@@ -20,8 +20,8 @@ namespace TimeTrack.Server.Models
         public long Id { get; set; }
         [Column(TypeName = "date")]
         public DateTime Start { get; set; }
-        [Comment("Duration in minutes")]
-        public int Duration { get; set; }
+        [Precision(5,2)]
+        public decimal ClinicalHours { get; set; }
         public long? ClientId { get; set; }
         public Client? Client { get; set; }
 
@@ -36,7 +36,7 @@ namespace TimeTrack.Server.Models
         public Activity(Activity previous)
         {
             Start = previous.Start;
-            Duration = previous.Duration;
+            ClinicalHours = previous.ClinicalHours;
             ClientId = previous.ClientId;
             GroupId = previous.GroupId;
             Schedule = previous.Schedule;
