@@ -6,11 +6,16 @@
 
 <MudText Typo="Typo.h3">Register This Device</MudText>
 <MudText Typo="Typo.caption">Use your face, fingerprint, or other <a href="https://fidoalliance.org/fido2/">FIDO2 device</a> to log in, instead of your password.</MudText>
+<MudText Typo="Typo.caption">
+    You will be prompted to save a passkey. On Android you will see several options. Choosing screen lock will let you log in similar to how you unlock your phone.
+    On iOS choosing to save a passkey will use FaceID or Touch ID.
+    You can read more about Webauthn <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API">here.</a>
+</MudText>
 <form>
     <MudTextField @bind-Value="@deviceName" Label="Device Name" HelperText="Name this device so that you can recognize it later in your account settings." Required />
     <div class="mt-2">
-
         <MudButton Disabled="@(data is null)" OnClick="@HandleRegister">Register!</MudButton>
+        <MudButton Href="@ReturnTo">No thanks</MudButton>
     </div>
 </form>
 @if (registerError)
@@ -19,6 +24,8 @@
 }
 
 @code {
+    [Parameter]
+    public string ReturnTo { get; set; } = "/account/authenticators";
     private dynamic? data;
     private IJSObjectReference module;
     private bool registerError = false;
@@ -42,7 +49,7 @@
         {
             var credential = await module.InvokeAsync<object>("createCredential", new object[] { data! });
             var result = await Http.PostAsJsonAsync("/api/authenticators", new { Name = deviceName, Credential = credential});
-            Nav.NavigateTo("/account/authenticators");
+            Nav.NavigateTo(ReturnTo);
         }
         catch (JSException e)
         {

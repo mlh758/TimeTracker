@@ -44,6 +44,11 @@
         try
         {
             var client = await Http.GetFromJsonAsync<VM.Client>($"/api/Clients/{Id}");
+            if (client is null)
+            {
+                notFound = true;
+                return;
+            }
             form = new NewClientForm()
             {
                 Abbreviation = client.Abbreviation,

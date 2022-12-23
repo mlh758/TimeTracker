@@ -20,15 +20,15 @@
     <MudText Typo="Typo.h2">@client.Abbreviation</MudText>
     <dl>
         <dt>Treatment Setting</dt>
-        <dd>@client.Setting.Name</dd>
+        <dd>@client.Setting!.Name</dd>
         <dt>Age</dt>
-        <dd>@client.Age.Name</dd>
+        <dd>@client.Age!.Name</dd>
         <dt>Race</dt>
-        <dd>@client.Race.Name</dd>
+        <dd>@client.Race!.Name</dd>
         <dt>Gender</dt>
-        <dd>@client.Gender.Name</dd>
+        <dd>@client.Gender!.Name</dd>
         <dt>Sexual Orientation</dt>
-        <dd>@client.SexualOrientation.Name</dd>
+        <dd>@client.SexualOrientation!.Name</dd>
         <dt>Disabilities</dt>
         <dd>@String.Join(", ", client.Disabilities.Select(d => d.Name).ToList())</dd>
     </dl>
