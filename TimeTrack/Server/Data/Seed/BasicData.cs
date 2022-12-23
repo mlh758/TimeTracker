@@ -49,17 +49,22 @@ namespace TimeTrack.Server.Data.Seed
         // AAPI 2020-2021 Application
         private static void SeedCategories(TimeContext context)
         {
-            if (context.Categories.Any())
-            {
-                return;
-            }
+            var existingCategories = context.Categories.Where(c => c.UserId == null).ToList();
             using var stream = File.OpenText(@"Data/Seed/categories.txt");
 
             string? line;
             while ((line = stream.ReadLine()) != null)
             {
                 var parts = line.Trim().Split(",").Select(s => s.Trim()).ToList();
-                context.Add(new Category(parts[1], GetCategory(parts[0])));
+                var newCategory = new Category(parts[1], GetCategory(parts[0]));
+                if (existingCategories.Any(c => c.Name == newCategory.Name && c.Type == newCategory.Type))
+                {
+                    continue;
+                }
+                else
+                {
+                    context.Add(newCategory);
+                }
             }
         }
 

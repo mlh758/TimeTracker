@@ -12,11 +12,13 @@ Race,American Indian / Alaska Native / Aboriginal Canadian
 Race,European Origin / White
 Race,Bi-racial / Multi-racial
 Race,Other
+Race,Unknown
 SexualOrientation,Heterosexual
 SexualOrientation,Gay
 SexualOrientation,Lebian
 SexualOrientation,Bisexual
 SexualOrientation,Other
+SexualOrientation,Unknown
 Disabilities,Physical/Orthopedic
 Disabilities,Blind/Visually Impaired
 Disabilities,Deaf/Hard of hearing
@@ -42,3 +44,4 @@ Gender,Male
 Gender,Female
 Gender,Transgender
 Gender,Other
+Gender,Unknown
