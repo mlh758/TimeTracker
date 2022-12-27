@@ -27,6 +27,9 @@
                             <MudText Typo="Typo.body1">@activity.Owner.Name</MudText>
                             <MudText Typo="Typo.body2">@activity.ClinicalHours hour(s)</MudText>
                         </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Href="@($"/activities/{activity.Id}/edit")" />
+                        </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
                         <MudList>
@@ -39,7 +42,7 @@
                     <MudCardActions>
                         <div class="action-buttons-container">
                             <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.This))" />
-                            @if(activity.IsScheduled)
+                            @if (activity.IsScheduled)
                             {
                                 <div>
                                     <MudButton StartIcon="@Icons.Material.Filled.Delete" Color="@Color.Error" OnClick="@(_ => DeleteActivity(activity.Id, ActivityDelete.Future))">Future Activity</MudButton>

@@ -1,0 +1,77 @@
+﻿@page "/activities/{Id:int}/edit"
+@using VM = TimeTrack.Shared.ViewModels
+@using TimeTrack.Client.Components
+@using TimeTrack.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit Activity</PageTitle>
+<MudText Typo="Typo.h1">Edit Activity</MudText>
+
+@if (saveError)
+{
+    <MudAlert Severity="Severity.Error" ShowCloseIcon CloseIconClicked="@(() => saveError = false)">Unable to save changes to the activity, please try again.</MudAlert>
+}
+
+@if (loadError)
+{
+    <MudAlert Severity="Severity.Error">There was a problem loading this activity. Try again later.</MudAlert>
+}
+
+@if (notFound)
+{
+    <MudAlert Severity="Severity.Warning">Unable to find this activity</MudAlert>
+}
+
+@if (model is not null)
+{
+    <ActivityEditor Model="@model" OnSubmit="@OnValidSubmit" DisableSchedule />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    ActivityForm? model;
+    private bool saveError = false;
+    private bool loadError = false;
+    private bool notFound = false;
+
+
+    async Task OnValidSubmit(ActivityForm form)
+    {
+        var response = await Http.PutAsync($"/api/activities/{Id}", JsonContent.Create(form));
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/");
+
+        }
+        else
+        {
+            saveError = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            model = await Http.GetFromJsonAsync<ActivityForm>($"/api/activities/{Id}");
+            if (model is null)
+            {
+                notFound = true;
+                return;
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                notFound = true;
+            }
+            else
+            {
+                loadError = true;
+            }
+        }
+    }
+}

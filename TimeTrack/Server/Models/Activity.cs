@@ -32,6 +32,9 @@ namespace TimeTrack.Server.Models
         public int? ScheduleId { get; set; }
 
         public List<Assessment>? Assessments { get; set; }
+        public bool UsedInResearch { get; set; }
+        public bool ClinicallyScored { get; set; }
+        public bool UsedInIntegratedReport { get; set; }
         public Activity() { }
         public Activity(Activity previous)
         {

@@ -8,6 +8,9 @@
 
     <MudTextField Required T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="Model.Start" />
     <MudTextField Required T="decimal?" Label="Clinical Hours" InputType="InputType.Number" @bind-Value="Model.ClinicalHours" InputMode="InputMode.numeric" UserAttributes="@(new Dictionary<string, object>() { ["step"] = "0.25" })" />
+    <MudCheckBox @bind-Checked="Model.UsedInResearch" Label="Used in research" Color="Color.Primary" />
+    <MudCheckBox @bind-Checked="Model.ClinicallyScored" Label="Clinically Administered / Scored" Color="Color.Primary" />
+    <MudCheckBox @bind-Checked="Model.UsedInIntegratedReport" Label="Used in integrated report" Color="Color.Primary" />
 
     @if (loading)
     {
@@ -45,10 +48,10 @@
             </MudChip>
         }
         <section>
-            <MudSwitch T="bool" Label="This is a recurring activity" Checked="@(Model.Schedule is not null)" CheckedChanged="@OnChangeSchedule" Color="Color.Primary" />
+            <MudSwitch T="bool" Label="This is a recurring activity" Disabled="@DisableSchedule" Checked="@(Model.Schedule is not null)" CheckedChanged="@OnChangeSchedule" Color="Color.Primary" />
             @if (Model.Schedule is not null)
             {
-                <ScheduleEditor Schedule="@Model.Schedule" />
+                <ScheduleEditor Schedule="@Model.Schedule" Disabled="@DisableSchedule" />
             }
         </section>
     }
@@ -64,6 +67,9 @@
 
     [Parameter]
     public EventCallback<ActivityForm> OnSubmit { get; set; }
+
+    [Parameter]
+    public bool DisableSchedule { get; set; }
 
     private ActivityOwner[]? clients;
     private ActivityOwner[]? groups;

@@ -30,7 +30,7 @@ namespace TimeTrack.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetClientActivity(int id)
+        public async Task<ActionResult<ActivityForm>> GetClientActivity(long id)
         {
             var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             var activity = await _activityRepo.Find(userId, id);
@@ -40,7 +40,43 @@ namespace TimeTrack.Server.Controllers
                 return NotFound();
             }
 
-            return activity;
+            var form = new ActivityForm()
+            {
+                Start = activity.Start,
+                ClinicalHours = activity.ClinicalHours,
+                Assessments = activity.Assessments!.Select(a => new VM.Assessment() { Id = a.Id, Name = a.Name }).ToHashSet(),
+                UsedInIntegratedReport = activity.UsedInIntegratedReport,
+                UsedInResearch = activity.UsedInResearch,
+                ClinicallyScored = activity.ClinicallyScored,
+            };
+            if (activity.Group is not null)
+            {
+                form.Group = activity.Group;
+            }
+            if (activity.Client is not null)
+            {
+                form.Client = activity.Client;
+            }
+            if (activity.Schedule is not null)
+            {
+                form.Schedule = new VM.Schedule()
+                {
+                    Id = activity.Schedule.Id,
+                    EndSchedule = activity.Schedule.EndSchedule,
+                    DaysOfWeek = activity.Schedule.DaysOfWeek,
+                    Interval = activity.Schedule.Interval,
+                    Frequency = activity.Schedule.Frequency,
+                };
+            }
+            return form;
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(long id, ActivityForm form)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _activityRepo.Update(userId, id, form);
+            return Ok();
         }
 
         [HttpGet]

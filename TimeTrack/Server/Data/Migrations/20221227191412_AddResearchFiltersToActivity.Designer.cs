@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TimeTrack.Server.Data;
 
@@ -11,9 +12,10 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    partial class TimeContextModelSnapshot : ModelSnapshot
+    [Migration("20221227191412_AddResearchFiltersToActivity")]
+    partial class AddResearchFiltersToActivity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

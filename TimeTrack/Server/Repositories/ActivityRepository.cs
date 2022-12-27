@@ -4,6 +4,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TimeTrack.Server.Services;
 using TimeTrack.Shared.Enums;
+using TimeTrack.Shared;
+using static MudBlazor.CategoryTypes;
 
 namespace TimeTrack.Server.Repositories
 {
@@ -15,6 +17,7 @@ namespace TimeTrack.Server.Repositories
 
         public Task<int> CreateScheduled(Activity activity);
         public Task Delete(string userId, long Id, ActivityDelete mode);
+        public Task Update(string userId, long Id, ActivityForm properties);
     }
     public class ActivityRepository : IActivityRepository
     {
@@ -36,7 +39,13 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Activity?> Find(string userId, long Id)
         {
-            return await ClientUserActivity(userId).Concat(GroupUserActivity(userId)).Where(a => a.Id == Id).FirstOrDefaultAsync();
+            var includeNested = (IQueryable<Activity> a) => a.Where(a => a.Id == Id).Include(a => a.Client).Include(a => a.Group).Include(a => a.Assessments).Include(a => a.Schedule).FirstOrDefaultAsync();
+            var clientActivity = await includeNested(ClientUserActivity(userId));
+            if (clientActivity is not null)
+            {
+                return clientActivity;
+            }
+            return await includeNested(GroupUserActivity(userId));
         }
 
         public async Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end)
@@ -64,6 +73,31 @@ namespace TimeTrack.Server.Repositories
             }
             await _context.SaveChangesAsync();
             return count;
+        }
+
+        public async Task Update(string userId, long Id, ActivityForm properties)
+        {
+            var selectedIds = properties.Assessments.Select(a => a.Id);
+            var selectedAssessments = selectedIds.Any() ? await _context.Assessments.Where(a => selectedIds.Contains(a.Id)).ToListAsync() : Enumerable.Empty<Assessment>();
+            var existing = await Find(userId, Id);
+            if (existing is null)
+            {
+                return;
+            }
+            // We should update all the items in the schedule if we update a scheduled activity. Make sure to maintain the original start date.
+            if (existing.ScheduleId.HasValue)
+            {
+                foreach (var item in _context.Activities.Where(a => a.ScheduleId == existing.ScheduleId))
+                {
+                    var originalDate = item.Start;
+                    ActivityFactory.UpdateFromForm(item, properties, selectedAssessments);
+                    item.Start = originalDate;
+                }
+            } else
+            {
+                ActivityFactory.UpdateFromForm(existing, properties, selectedAssessments);
+            }
+            await _context.SaveChangesAsync();
         }
 
         private IQueryable<Activity> ClientUserActivity(string userId)

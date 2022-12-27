@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
+using VM = TimeTrack.Shared.ViewModels;
 
 namespace TimeTrack.Server.Models
 {
@@ -34,5 +34,7 @@ namespace TimeTrack.Server.Models
         {
             Abbreviation = abbreviation;
         }
+
+        public static implicit operator VM.ActivityOwner(Client c) => new() { Id = c.Id, Name = c.Abbreviation };
     }
 }

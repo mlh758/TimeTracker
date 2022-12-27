@@ -19,6 +19,9 @@ namespace TimeTrack.Shared
 
         public ActivityOwner? Client { get; set; }
         public ActivityOwner? Group { get; set; }
+        public bool UsedInResearch { get; set; }
+        public bool ClinicallyScored { get; set; }
+        public bool UsedInIntegratedReport { get; set; }
 
         public ActivityForm()
         {

@@ -1,39 +1,41 @@
-﻿using TimeTrack.Server.Models;
+﻿using TimeTrack.Client.Pages;
+using TimeTrack.Server.Models;
 using TimeTrack.Shared;
 
 namespace TimeTrack.Server.Services
 {
     public class ActivityFactory
     {
-        public static Activity FromForm(ActivityForm form, IEnumerable<Assessment> selectedAssessments)
+        public static Activity UpdateFromForm(Activity currentActivity, ActivityForm form, IEnumerable<Assessment> selectedAssessments)
         {
-            Activity newActivity;
             if (form.Group is null && form.Client is null)
             {
                 throw new ArgumentException("client or group is required for activity");
             }
             if (form.Group is not null)
             {
-                newActivity = new Activity()
-                {
-                    GroupId = form.Group.Id,
-                };
+                currentActivity.GroupId = form.Group.Id;
             }
-            else
+            if (form.Client is not null)
             {
-                newActivity = new Activity()
-                {
-                    ClientId = form.Client!.Id,
-                };
+                currentActivity.ClientId = form.Client.Id;
             }
             if (form.Schedule is not null)
             {
-                newActivity.Schedule = form.Schedule;
+                currentActivity.Schedule = form.Schedule;
             }
-            newActivity.Start = form.Start!.Value;
-            newActivity.ClinicalHours = form.ClinicalHours!.Value;
-            newActivity.Assessments = selectedAssessments.ToList();
-            return newActivity;
+            currentActivity.Start = form.Start!.Value;
+            currentActivity.ClinicalHours = form.ClinicalHours!.Value;
+            currentActivity.Assessments = selectedAssessments.ToList();
+            currentActivity.UsedInIntegratedReport = form.UsedInIntegratedReport;
+            currentActivity.UsedInResearch = form.UsedInResearch;
+            currentActivity.ClinicallyScored = form.ClinicallyScored;
+            return currentActivity;
+        }
+        public static Activity FromForm(ActivityForm form, IEnumerable<Assessment> selectedAssessments)
+        {
+            var newActivity = new Activity();
+            return UpdateFromForm(newActivity, form, selectedAssessments);
         }
     }
 }

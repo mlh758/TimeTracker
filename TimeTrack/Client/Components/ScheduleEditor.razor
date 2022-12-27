@@ -4,26 +4,26 @@
 
 <section>
     <MudStack Spacing=2>
-        <MudTextField Required T="DateTime" Format="yyyy-MM-dd" Label="Stop Date" InputType="InputType.Date" @bind-Value="Schedule.EndSchedule" HelperText="Date to stop the recurring event, up to 1 year" />
-        <MudSelect Label="Frequency" @bind-Value="@Schedule.Frequency">
+        <MudTextField Disabled="@Disabled" Required T="DateTime" Format="yyyy-MM-dd" Label="Stop Date" InputType="InputType.Date" @bind-Value="Schedule.EndSchedule" HelperText="Date to stop the recurring event, up to 1 year" />
+        <MudSelect Disabled="@Disabled" Label="Frequency" @bind-Value="@Schedule.Frequency">
             <MudSelectItem Value="Frequency.Daily">Daily</MudSelectItem>
             <MudSelectItem Value="Frequency.Weekdays">Weekdays</MudSelectItem>
             <MudSelectItem Value="Frequency.Weekly">Weekly</MudSelectItem>
             <MudSelectItem Value="Frequency.Monthly">Monthly</MudSelectItem>
         </MudSelect>
 
-        <MudTextField Required T="ushort" Label="Interval" HelperText="Gap between events. For example, 2 for every other day" InputType="InputType.Number" @bind-Value="Schedule.Interval" />
+        <MudTextField Disabled="@Disabled" Required T="ushort" Label="Interval" HelperText="Gap between events. For example, 2 for every other day" InputType="InputType.Number" @bind-Value="Schedule.Interval" />
 
         @if (Schedule.Frequency == Frequency.Weekly)
         {
             <MudText Typo="Typo.caption">Select days for this activity:</MudText>
-            <MudButtonGroup Class="d-none d-md-block">
+            <MudButtonGroup Disabled="@Disabled" Class="d-none d-md-block">
                 @foreach (var (i, day) in EachDay(Weekdays))
                 {
                     <MudButton Class="@(WeekdayClass(i))" type="button" @onclick="() => HandleWeekdays(i)">@day</MudButton>
                 }
             </MudButtonGroup>
-            <MudButtonGroup Class="d-md-none">
+            <MudButtonGroup Disabled="@Disabled" Class="d-md-none">
                 @foreach (var (i, day) in EachDay(ShortWeekdays))
                 {
                     <MudButton Class="@(WeekdayClass(i))" type="button" @onclick="() => HandleWeekdays(i)">@day</MudButton>
@@ -36,6 +36,9 @@
 @code {
     [Parameter]
     public Schedule Schedule { get; set; } = new Schedule();
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     private List<string> Weekdays = new() { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
     private List<string> ShortWeekdays = new() { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
