@@ -33,6 +33,7 @@ namespace TimeTrack.Server.Data
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<UserCredential> UserCredentials { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<ActivityGrouping> ActivityGrouping { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -46,8 +47,10 @@ namespace TimeTrack.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Activity>().HasOne(c => c.Client).WithMany(c => c.Activities).HasForeignKey(c => c.ClientId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Activity>().HasOne(c => c.Client).WithMany(c => c.Activities).HasForeignKey(c => c.ClientId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<Activity>().HasOne(c => c.Group).WithMany(c => c.Activities).HasForeignKey(c => c.GroupId).OnDelete(DeleteBehavior.ClientCascade);
+            modelBuilder.Entity<Activity>().HasOne(c => c.ActivityGrouping).WithMany(c => c.Activities).HasForeignKey(c => c.ActivityGroupingId).OnDelete(DeleteBehavior.ClientCascade);
+            modelBuilder.Entity<Activity>().HasOne(c => c.User).WithMany(u => u.Activities).HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Group>().HasOne(c => c.User).WithMany(u => u.Groups).HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Restrict);
 

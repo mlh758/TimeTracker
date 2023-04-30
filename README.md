@@ -25,6 +25,9 @@ ask questions like "How many hours have I worked with disabled patients?".
 `Assessments` are another descriptor for clinical activities. They are tied to the specific activity rather than the client since different sessions may perform
 different assessments. This list is pulled from an online dataset.
 
+`ActivityGrouping` categorizes activity. Not all activity is done with a client or a group. Supervision would be an example of this so not all activity is going to
+have those models associated with it.
+
 ## Helpful Commands
 
 ### Set up the database

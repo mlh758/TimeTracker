@@ -18,9 +18,11 @@ namespace TimeTrack.Server.Models
     public class Activity
     {
         public long Id { get; set; }
+        public long ActivityGroupingId { get; set; }
+        public ActivityGrouping? ActivityGrouping { get; set; }
         [Column(TypeName = "date")]
         public DateTime Start { get; set; }
-        [Precision(5,2)]
+        [Precision(5, 2)]
         public decimal ClinicalHours { get; set; }
         public long? ClientId { get; set; }
         public Client? Client { get; set; }
@@ -31,11 +33,14 @@ namespace TimeTrack.Server.Models
         public Schedule? Schedule { get; set; }
         public int? ScheduleId { get; set; }
 
+        public string UserId { get; set; }
+        public User? User { get; set; }
+
         public List<Assessment>? Assessments { get; set; }
         public bool UsedInResearch { get; set; }
         public bool ClinicallyScored { get; set; }
         public bool UsedInIntegratedReport { get; set; }
-        public Activity() { }
+        public Activity(string userId) { UserId = userId; }
         public Activity(Activity previous)
         {
             Start = previous.Start;
@@ -44,13 +49,16 @@ namespace TimeTrack.Server.Models
             GroupId = previous.GroupId;
             Schedule = previous.Schedule;
             Assessments = previous.Assessments;
+            UserId = previous.UserId;
+            ActivityGroupingId = previous.ActivityGroupingId;
         }
 
-        public ActivityOwner GetOwner()
+        // Not all activity will belong to an owner like a client or group. Support activity for example is done alone.
+        public ActivityOwner? GetOwner()
         {
             if (Group is not null)
             {
-                return new ActivityOwner() {  Id = Group.Id, Name = Group.Name };
+                return new ActivityOwner() { Id = Group.Id, Name = Group.Name };
             }
             if (Client is not null)
             {

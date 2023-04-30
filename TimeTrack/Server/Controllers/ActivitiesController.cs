@@ -48,6 +48,7 @@ namespace TimeTrack.Server.Controllers
                 UsedInIntegratedReport = activity.UsedInIntegratedReport,
                 UsedInResearch = activity.UsedInResearch,
                 ClinicallyScored = activity.ClinicallyScored,
+                Grouping = new VM.ActivityGrouping(activity.ActivityGrouping!.Name) { Id = activity.ActivityGrouping.Id, Type = activity.ActivityGrouping.GroupingType },
             };
             if (activity.Group is not null)
             {
@@ -123,7 +124,7 @@ namespace TimeTrack.Server.Controllers
                 }
             }
             var assessments = await _assessmentRepo.FindById(body.Assessments.Select(el => el.Id));
-            var newActivity = ActivityFactory.FromForm(body, assessments);
+            var newActivity = ActivityFactory.FromForm(userId, body, assessments);
             if (body.Schedule is null)
             {
                 newActivity = await _activityRepo.Create(newActivity);

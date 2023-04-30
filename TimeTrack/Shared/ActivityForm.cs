@@ -7,6 +7,8 @@ namespace TimeTrack.Shared
     public class ActivityForm : IValidatableObject
     {
         [Required]
+        public ActivityGrouping Grouping { get; set; }
+        [Required]
         public DateTime? Start { get; set; }
         [Required]
         [Range(0, 24, ErrorMessage = "Duration is limited to the number of hours in a day (0 - 24)")]
@@ -30,10 +32,10 @@ namespace TimeTrack.Shared
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (!(Client is not null ^ Group is not null))
+            if (!(Client is not null ^ Group is not null || Client is null && Group is null))
             {
                 yield return new ValidationResult(
-                    $"You must select either a group or client but not both.",
+                    $"You must select a category for the activity or a client/group.",
                     new[] { nameof(Client) });
             }
         }

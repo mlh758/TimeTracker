@@ -9,6 +9,7 @@ using static MudBlazor.CategoryTypes;
 
 namespace TimeTrack.Server.Repositories
 {
+    // TODO Fix the user relationship, can't rely on user on  group / client to filter for user activity if that relationship is now optional
     public interface IActivityRepository
     {
         public Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end);
@@ -39,20 +40,12 @@ namespace TimeTrack.Server.Repositories
 
         public async Task<Activity?> Find(string userId, long Id)
         {
-            var includeNested = (IQueryable<Activity> a) => a.Where(a => a.Id == Id).Include(a => a.Client).Include(a => a.Group).Include(a => a.Assessments).Include(a => a.Schedule).FirstOrDefaultAsync();
-            var clientActivity = await includeNested(ClientUserActivity(userId));
-            if (clientActivity is not null)
-            {
-                return clientActivity;
-            }
-            return await includeNested(GroupUserActivity(userId));
+            return await LoadCommonRelationships(ActivityForUser(userId)).Where(a => a.Id == Id).Include(a => a.Schedule).FirstOrDefaultAsync();
         }
 
         public async Task<List<Activity>> ForUserWithin(string userId, DateTime start, DateTime end)
         {
-            var activity = await ClientUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Client).Select(a => a).ToListAsync();
-            var groups = await GroupUserActivity(userId).Where(a => a.Start >= start && a.Start <= end).Include(a => a.Assessments).Include(a => a.Group).Select(a => a).ToListAsync();
-            return activity.Concat(groups).OrderBy(a => a.Start).ToList();
+            return await LoadCommonRelationships(ActivityForUser(userId)).Where(a => a.Start >= start && a.Start <= end).OrderBy(a => a.Start).ToListAsync();
         }
 
         public async Task<int> CreateScheduled(Activity activity)
@@ -87,7 +80,7 @@ namespace TimeTrack.Server.Repositories
             // We should update all the items in the schedule if we update a scheduled activity. Make sure to maintain the original start date.
             if (existing.ScheduleId.HasValue)
             {
-                foreach (var item in _context.Activities.Where(a => a.ScheduleId == existing.ScheduleId))
+                foreach (var item in _context.Activities.Where(a => a.ScheduleId == existing.ScheduleId).Include(a => a.Assessments))
                 {
                     var originalDate = item.Start;
                     ActivityFactory.UpdateFromForm(item, properties, selectedAssessments);
@@ -100,20 +93,13 @@ namespace TimeTrack.Server.Repositories
             await _context.SaveChangesAsync();
         }
 
-        private IQueryable<Activity> ClientUserActivity(string userId)
+        private IQueryable<Activity> ActivityForUser(string userId)
         {
-            return from cl in _context.Clients
-                   join a in _context.Activities on cl.Id equals a.ClientId
-                   where cl.UserId == userId
-                   select a;
+            return _context.Activities.Where(a => a.UserId == userId);
         }
 
-        private IQueryable<Activity> GroupUserActivity(string userId)
-        {
-            return from a in _context.Activities
-                   join g in _context.Groups on a.GroupId equals g.Id
-                   where g.UserId == userId
-                   select a;
+        private IQueryable<Activity> LoadCommonRelationships(IQueryable<Activity> activities) {
+            return activities.Include(a => a.Assessments).Include(a => a.Client).Include(a => a.Group).Include(a => a.ActivityGrouping);
         }
 
         public async Task Delete(string userId, long Id, ActivityDelete mode)

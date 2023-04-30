@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.IO;
 using TimeTrack.Server.Models;
 using TimeTrack.Shared.Enums;
@@ -12,6 +13,7 @@ namespace TimeTrack.Server.Data.Seed
             using var context = new TimeContext(connectionString);
             SeedAssessments(context);
             SeedCategories(context);
+            SeedActivityTypes(context);
             context.SaveChanges();
         }
 
@@ -68,25 +70,51 @@ namespace TimeTrack.Server.Data.Seed
             }
         }
 
+        private static void SeedActivityTypes(TimeContext context)
+        {
+            var existingCategories = context.ActivityGrouping.Where(c => c.UserId == null).ToList();
+            using var stream = File.OpenText(@"Data/Seed/activities.csv");
+
+            string? line;
+            while ((line = stream.ReadLine()) != null)
+            {
+                var parts = line.Trim().Split(",").Select(s => s.Trim()).ToList();
+                var newCategory = new ActivityGrouping(parts[0], GetActivity(parts[1]));
+                if (existingCategories.Any(c => c.Name == newCategory.Name && c.GroupingType == newCategory.GroupingType))
+                {
+                    continue;
+                }
+                else
+                {
+                    context.Add(newCategory);
+                }
+            }
+        }
+
         private static CategoryType GetCategory(string typeName)
         {
-            switch (typeName)
+            return typeName switch
             {
-                case "Age":
-                    return CategoryType.Age;
-                case "Race":
-                    return CategoryType.Race;
-                case "SexualOrientation":
-                    return CategoryType.SexualOrientation;
-                case "Disabilities":
-                    return CategoryType.Disability;
-                case "TreatmentSetting":
-                    return CategoryType.TreatmentSetting;
-                case "Gender":
-                    return CategoryType.Gender;
-                default:
-                    throw new ArgumentException("unrecognized category type in seed file");
-            }
+                "Age" => CategoryType.Age,
+                "Race" => CategoryType.Race,
+                "SexualOrientation" => CategoryType.SexualOrientation,
+                "Disabilities" => CategoryType.Disability,
+                "TreatmentSetting" => CategoryType.TreatmentSetting,
+                "Gender" => CategoryType.Gender,
+                _ => throw new ArgumentException("unrecognized category type in seed file"),
+            };
+        }
+
+        private static ActivityGroupingType GetActivity(string typeName)
+        {
+            return typeName switch
+            {
+                "Intervention" => ActivityGroupingType.Intervention,
+                "Assessment" => ActivityGroupingType.Assessment,
+                "Support" => ActivityGroupingType.Support,
+                "Supervision" => ActivityGroupingType.Supervision,
+                _ => throw new ArgumentException($"unrecognized activity type ${typeName} in seed file"),
+            };
         }
     }
 }

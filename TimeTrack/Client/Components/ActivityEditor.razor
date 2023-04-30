@@ -1,10 +1,19 @@
 ﻿@using TimeTrack.Shared
 @using TimeTrack.Shared.ViewModels
 @using TimeTrack.Client.Components
+@using TimeTrack.Shared.Enums
 @inject HttpClient Http
 
 <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
+    @if (loading)
+    {
+        <MudSkeleton Width="100%" Height="4.2rem" />
+    }
+    else
+    {
+        <MudAutocomplete T="ActivityGrouping" MaxItems="50" Label="Choose Activity Grouping" @bind-Value="Model.Grouping" SearchFunc="@SearchGroupings" ToStringFunc="@(e=> $"{e.Name} ({ActivityGroupingTypeDisplay.Show(e.Type)})")" Clearable ResetValueOnEmptyText />
+    }
 
     <MudTextField Required T="DateTime?" Format="yyyy-MM-dd" Label="Activity Date" InputType="InputType.Date" @bind-Value="Model.Start" />
     <MudTextField Required T="decimal?" Label="Clinical Hours" InputType="InputType.Number" @bind-Value="Model.ClinicalHours" InputMode="InputMode.numeric" UserAttributes="@(new Dictionary<string, object>() { ["step"] = "0.25" })" />
@@ -22,11 +31,12 @@
     {
         <MudSwitch T="bool" Label="This is a group activity" Checked="@isGroup" CheckedChanged="@OnIsGroupChange" Color="Color.Primary" />
         @if (isGroup)
-        {   
-            <MudAutocomplete T="ActivityOwner" Label="Choose Group" @bind-Value="Model.Group" SearchFunc="@SearchGroups" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
-        } else
         {
-        <MudAutocomplete T="ActivityOwner" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
+            <MudAutocomplete T="ActivityOwner" Label="Choose Group" @bind-Value="Model.Group" SearchFunc="@SearchGroups" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
+        }
+        else
+        {
+            <MudAutocomplete T="ActivityOwner" Label="Choose Client" @bind-Value="Model.Client" SearchFunc="@SearchClients" ToStringFunc="@(e=> e.Name)" Clearable ResetValueOnEmptyText />
         }
         <MudAutocomplete T="Assessment"
                      @ref="assessmentSearch"
@@ -73,6 +83,7 @@
 
     private ActivityOwner[]? clients;
     private ActivityOwner[]? groups;
+    private ActivityGrouping[]? groupings;
     private Assessment[]? assessments;
     private bool loading = true;
     private bool isGroup = false;
@@ -147,6 +158,22 @@
         return groups.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
+    private async Task<IEnumerable<ActivityGrouping>> SearchGroupings(string text)
+    {
+        await Task.Delay(0);
+        if (groupings is null)
+        {
+            return new List<ActivityGrouping>();
+        }
+
+        if (String.IsNullOrEmpty(text))
+        {
+            return groupings;
+        }
+
+        return groupings.Where(e => e.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) || ActivityGroupingTypeDisplay.Show(e.Type).Contains(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
     private async Task<IEnumerable<Assessment>> SearchAssessments(string text)
     {
         await Task.Delay(0);
@@ -174,9 +201,11 @@
     {
         var clientsTask = Http.GetFromJsonAsync<ActivityOwner[]>("/api/Clients");
         var groupsTask = Http.GetFromJsonAsync<ActivityOwner[]>("/api/Groups");
+        var groupingsTask = Http.GetFromJsonAsync<ActivityGrouping[]>("/api/activitygrouping");
         assessments = await Http.GetFromJsonAsync<Assessment[]>("/api/assessments");
         clients = await clientsTask;
         groups = await groupsTask;
+        groupings = await groupingsTask;
         loading = false;
     }
 }

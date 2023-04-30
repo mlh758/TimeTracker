@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TimeTrack.Server.Data;
 
@@ -11,13 +12,14 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    partial class TimeContextModelSnapshot : ModelSnapshot
+    [Migration("20230120205401_CreateActivityGrouping")]
+    partial class CreateActivityGrouping
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -208,9 +210,6 @@ namespace TimeTrack.Server.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("ActivityGroupingId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("ClientId")
                         .HasColumnType("bigint");
 
@@ -236,21 +235,13 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<bool>("UsedInResearch")
                         .HasColumnType("bit");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ActivityGroupingId");
 
                     b.HasIndex("ClientId");
 
                     b.HasIndex("GroupId");
 
                     b.HasIndex("ScheduleId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Activities");
                 });
@@ -634,16 +625,10 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.Activity", b =>
                 {
-                    b.HasOne("TimeTrack.Server.Models.ActivityGrouping", "ActivityGrouping")
-                        .WithMany("Activities")
-                        .HasForeignKey("ActivityGroupingId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
                     b.HasOne("TimeTrack.Server.Models.Client", "Client")
                         .WithMany("Activities")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TimeTrack.Server.Models.Group", "Group")
                         .WithMany("Activities")
@@ -654,21 +639,11 @@ namespace TimeTrack.Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ScheduleId");
 
-                    b.HasOne("TimeTrack.Server.Models.User", "User")
-                        .WithMany("Activities")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ActivityGrouping");
-
                     b.Navigation("Client");
 
                     b.Navigation("Group");
 
                     b.Navigation("Schedule");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.ActivityGrouping", b =>
@@ -762,11 +737,6 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TimeTrack.Server.Models.ActivityGrouping", b =>
-                {
-                    b.Navigation("Activities");
-                });
-
             modelBuilder.Entity("TimeTrack.Server.Models.Category", b =>
                 {
                     b.Navigation("AgedClients");
@@ -792,8 +762,6 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.User", b =>
                 {
-                    b.Navigation("Activities");
-
                     b.Navigation("Categories");
 
                     b.Navigation("Credentials");

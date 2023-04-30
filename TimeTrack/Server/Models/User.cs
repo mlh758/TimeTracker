@@ -10,6 +10,7 @@ namespace TimeTrack.Server.Models
         public IEnumerable<Category>? Categories { get; set; }
         public IEnumerable<UserCredential>? Credentials { get; set; }
         public IEnumerable<Group>? Groups { get; set; }
+        public IEnumerable<Activity>? Activities { get; set; }
 
     }
 }

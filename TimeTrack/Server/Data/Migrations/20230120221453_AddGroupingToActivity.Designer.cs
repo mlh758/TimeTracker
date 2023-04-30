@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TimeTrack.Server.Data;
 
@@ -11,9 +12,10 @@ using TimeTrack.Server.Data;
 namespace TimeTrack.Server.Data.Migrations
 {
     [DbContext(typeof(TimeContext))]
-    partial class TimeContextModelSnapshot : ModelSnapshot
+    [Migration("20230120221453_AddGroupingToActivity")]
+    partial class AddGroupingToActivity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,10 +238,6 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Property<bool>("UsedInResearch")
                         .HasColumnType("bit");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ActivityGroupingId");
@@ -249,8 +247,6 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasIndex("GroupId");
 
                     b.HasIndex("ScheduleId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Activities");
                 });
@@ -643,7 +639,7 @@ namespace TimeTrack.Server.Data.Migrations
                     b.HasOne("TimeTrack.Server.Models.Client", "Client")
                         .WithMany("Activities")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TimeTrack.Server.Models.Group", "Group")
                         .WithMany("Activities")
@@ -654,12 +650,6 @@ namespace TimeTrack.Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ScheduleId");
 
-                    b.HasOne("TimeTrack.Server.Models.User", "User")
-                        .WithMany("Activities")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ActivityGrouping");
 
                     b.Navigation("Client");
@@ -667,8 +657,6 @@ namespace TimeTrack.Server.Data.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("Schedule");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TimeTrack.Server.Models.ActivityGrouping", b =>
@@ -792,8 +780,6 @@ namespace TimeTrack.Server.Data.Migrations
 
             modelBuilder.Entity("TimeTrack.Server.Models.User", b =>
                 {
-                    b.Navigation("Activities");
-
                     b.Navigation("Categories");
 
                     b.Navigation("Credentials");

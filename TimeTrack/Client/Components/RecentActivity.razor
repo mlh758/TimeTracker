@@ -21,10 +21,10 @@
                 <MudCard>
                     <MudCardHeader>
                         <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Secondary">@activity.Owner.Name.Substring(0,1)</MudAvatar>
+                            <MudAvatar Color="Color.Secondary">@(activity.Owner?.Name?.Substring(0,1) ?? "X")</MudAvatar>
                         </CardHeaderAvatar>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.body1">@activity.Owner.Name</MudText>
+                            <MudText Typo="Typo.body1">@activity.Owner?.Name</MudText>
                             <MudText Typo="Typo.body2">@activity.ClinicalHours hour(s)</MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
