@@ -1,4 +1,4 @@
-# TimeTrack
+# PracTrack
 
 Allows users to track their clinical hours (activities) against clients and groups that are composed of clients. There is no cross-user functionality within
 the application so everything is built around the user. The goal is the help users complete their AAPIC internship applications and later licensure.
